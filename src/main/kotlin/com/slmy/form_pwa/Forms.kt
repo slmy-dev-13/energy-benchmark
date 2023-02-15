@@ -8,7 +8,6 @@ data class ConsumptionCostsForm(
     val electricityCost: Double = 1000.0,
     val withHeatPump: Boolean = false,
     val withBalloonTD: Boolean = false,
-    val withPVSystem: Boolean = false,
 )
 
 @Serializable

@@ -1,10 +1,10 @@
 package com.slmy.form_pwa
 
+import com.slmy.form_pwa.consumption.ratioCard
 import io.kvision.chart.*
-import io.kvision.core.Color
 import io.kvision.core.Container
 import io.kvision.form.formPanel
-import io.kvision.form.spinner.simpleSpinner
+import io.kvision.form.number.spinner
 import io.kvision.html.*
 import io.kvision.panel.vPanel
 import io.kvision.state.ObservableValue
@@ -40,9 +40,6 @@ private fun buildLabels(form: ConsumptionCostsForm): List<String> {
         if (form.withBalloonTD) {
             add("BTD")
         }
-        if (form.withPVSystem) {
-            add("PV")
-        }
     }
 
     val label = if (optionsLabels.isNotEmpty()) {
@@ -59,26 +56,23 @@ private fun buildBarDataSets(form: ConsumptionCostsForm): List<DataSets> {
     val waterFuelCost = form.fuelCost - heatFuelCost
 
     val optimizedHeatCost = if (form.withHeatPump) heatFuelCost * .3 else heatFuelCost
-
     val optimizedWaterCost = if (form.withBalloonTD) waterFuelCost * .3 else waterFuelCost
-
-    val optimizedElectricityCost = if (form.withPVSystem) form.electricityCost * .3 else form.electricityCost
 
     return listOf(
         DataSets(
             label = "Chauffage",
-            backgroundColor = listOf(Color("#ff8a65")),
+            backgroundColor = listOf(heatColor),
             data = listOf(heatFuelCost, optimizedHeatCost),
         ),
         DataSets(
             label = "Eaux chaudes",
-            backgroundColor = listOf(Color("#4fc3f7")),
+            backgroundColor = listOf(waterColor),
             data = listOf(waterFuelCost, optimizedWaterCost),
         ),
         DataSets(
             label = "Divers",
-            backgroundColor = listOf(Color("#fff176")),
-            data = listOf(form.electricityCost, optimizedElectricityCost),
+            backgroundColor = listOf(diverseColor),
+            data = listOf(form.electricityCost, form.electricityCost),
         )
     )
 }
@@ -91,56 +85,18 @@ fun Container.consumptionCosts(formObservable: ObservableValue<ConsumptionCostsF
         )
     }
 
-    val toggleButton: Container.(Boolean) -> Unit = { enable ->
-        if (enable) {
-            addCssClass("btn-success")
-            removeCssClass("btn-error")
-        } else {
-            removeCssClass("btn-success")
-            addCssClass("btn-error")
-        }
-    }
-
     vPanel(spacing = 16) {
-        h2("Consommation")
+        h2("Les dépenses énergétiques")
 
-        section(className = "card") {
-            header(className = "card-header") {
-                h3("Proportions")
-            }
-            div(className = "card-body columns") {
-                chart(
-                    Configuration(
-                        type = ChartType.DOUGHNUT,
-                        dataSets = listOf(
-                            DataSets(
-                                backgroundColor = listOf(Color("#fff176")),
-                                data = listOf(100)
-                            ),
-                        ),
-                        labels = listOf("Divers"),
-                        options = ChartOptions(
-                            plugins = PluginsOptions(LegendOptions(display = true, position = Position.BOTTOM))
-                        )
-                    ),
-                    className = "col-6 col-xs-12"
-                )
-                chart(
-                    Configuration(
-                        type = ChartType.DOUGHNUT,
-                        dataSets = listOf(
-                            DataSets(
-                                backgroundColor = listOf(Color("#ff8a65"), Color("#4fc3f7")),
-                                data = listOf(30, 70),
-                            ),
-                        ),
-                        labels = listOf("Eaux chaudes", "Chauffage"),
-                        options = ChartOptions(
-                            plugins = PluginsOptions(LegendOptions(display = true, position = Position.BOTTOM))
-                        )
-                    ),
-                    className = "col-6 col-xs-12"
-                )
+        ratioCard()
+
+        val toggleButton: Container.(Boolean) -> Unit = { enable ->
+            if (enable) {
+                addCssClass("btn-success")
+                removeCssClass("btn-error")
+            } else {
+                removeCssClass("btn-success")
+                addCssClass("btn-error")
             }
         }
 
@@ -152,7 +108,7 @@ fun Container.consumptionCosts(formObservable: ObservableValue<ConsumptionCostsF
             div(className = "card-body") {
                 formPanel(className = "columns column") {
 
-                    simpleSpinner(null, label = "Fioul en €/an") {
+                    spinner(null, label = "Fioul en €/an") {
                         addCssClass("col-6")
                         addCssClass("col-xs-12")
 
@@ -160,7 +116,7 @@ fun Container.consumptionCosts(formObservable: ObservableValue<ConsumptionCostsF
                         subscribe { formObservable.update { getData() } }
                     }
 
-                    simpleSpinner(null, label = "Électricité en €/an") {
+                    spinner(null, label = "Électricité en €/an") {
                         addCssClass("col-6")
                         addCssClass("col-xs-12")
 
@@ -191,16 +147,6 @@ fun Container.consumptionCosts(formObservable: ObservableValue<ConsumptionCostsF
                             toggleButton(it.withBalloonTD)
                         }.onClick {
                             formObservable.update { it.copy(withBalloonTD = !it.withBalloonTD) }
-                        }
-
-                        button(
-                            text = "Système PV",
-                            style = ButtonStyle.LIGHT,
-                            className = "btn"
-                        ).bind(formObservable) {
-                            toggleButton(it.withPVSystem)
-                        }.onClick {
-                            formObservable.update { it.copy(withPVSystem = !it.withPVSystem) }
                         }
                     }
 
