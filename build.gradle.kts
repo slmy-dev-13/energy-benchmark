@@ -9,8 +9,8 @@ plugins {
     id("io.kvision") version kvisionVersion
 }
 
-version = "1.0.0"
-group = "com.example"
+version = "1.0.1"
+group = "com.jea"
 
 repositories {
     mavenCentral()
