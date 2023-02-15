@@ -1,5 +1,6 @@
 package com.slmy.form_pwa
 
+import com.slmy.form_pwa.expenses.energyExpenses
 import io.kvision.*
 import io.kvision.html.div
 import io.kvision.panel.root
@@ -39,7 +40,7 @@ class App : Application() {
 
         root("kvapp") {
             div(className = "column col-mx-auto col-8 col-sm-12 col-md-10 col-lg-10 col-xl-10 mast my-2") {
-                consumptionCosts(consumptionCostsFormObservable)
+                energyExpenses(consumptionCostsFormObservable)
 
                 isolation(isolationDataFormObservable, isolationIndexStore)
 

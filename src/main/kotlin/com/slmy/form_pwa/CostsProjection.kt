@@ -1,5 +1,6 @@
 package com.slmy.form_pwa
 
+import com.slmy.form_pwa.ui.card
 import io.kvision.chart.*
 import io.kvision.core.Color
 import io.kvision.core.Container

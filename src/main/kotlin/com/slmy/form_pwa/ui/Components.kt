@@ -1,4 +1,4 @@
-package com.slmy.form_pwa
+package com.slmy.form_pwa.ui
 
 import io.kvision.core.Container
 import io.kvision.html.div

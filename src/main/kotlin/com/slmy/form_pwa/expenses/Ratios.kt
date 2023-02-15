@@ -1,6 +1,10 @@
-package com.slmy.form_pwa.consumption
+package com.slmy.form_pwa.expenses
 
 import com.slmy.form_pwa.*
+import com.slmy.form_pwa.ui.card
+import com.slmy.form_pwa.ui.diverseColor
+import com.slmy.form_pwa.ui.heatColor
+import com.slmy.form_pwa.ui.waterColor
 import io.kvision.chart.*
 import io.kvision.core.Container
 import io.kvision.form.select.select

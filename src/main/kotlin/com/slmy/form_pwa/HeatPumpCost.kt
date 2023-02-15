@@ -1,5 +1,6 @@
 package com.slmy.form_pwa
 
+import com.slmy.form_pwa.ui.card
 import io.kvision.core.Container
 import io.kvision.form.formPanel
 import io.kvision.form.number.Spinner

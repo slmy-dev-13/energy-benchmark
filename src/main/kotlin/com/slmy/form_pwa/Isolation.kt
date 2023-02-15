@@ -1,5 +1,6 @@
 package com.slmy.form_pwa
 
+import com.slmy.form_pwa.ui.card
 import io.kvision.core.Container
 import io.kvision.core.FlexWrap
 import io.kvision.form.check.checkBox
@@ -20,7 +21,7 @@ private fun wrapForLabel(labelContent: String): String {
 
 fun Container.isolation(formObservable: ObservableValue<IsolationDataForm>, isolationIndexObservable: ObservableState<Int>) {
     vPanel(spacing = 16) {
-        h2("Isolation")
+        h2("Indice d'isolation")
 
         card(
             bodyContent = {
@@ -63,8 +64,6 @@ fun Container.isolation(formObservable: ObservableValue<IsolationDataForm>, isol
             },
             extraContent = {
                 div(className = "bg-gray p-2 text-right mt-2").bind(isolationIndexObservable) { isolationIndex ->
-                    span("Indice d'isolation")
-                    br()
                     span("$isolationIndex", className = "h1")
                 }
             }
