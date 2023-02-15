@@ -1,12 +1,13 @@
 package com.slmy.form_pwa.expenses
 
-import com.slmy.form_pwa.*
+import com.slmy.form_pwa.ConsumptionCostsForm
 import com.slmy.form_pwa.ui.*
+import com.slmy.form_pwa.update
 import io.kvision.chart.*
 import io.kvision.core.Container
 import io.kvision.form.formPanel
-import io.kvision.form.number.spinner
-import io.kvision.form.select.select
+import io.kvision.form.select.simpleSelect
+import io.kvision.form.spinner.simpleSpinner
 import io.kvision.html.*
 import io.kvision.state.ObservableValue
 import io.kvision.state.bind
@@ -119,7 +120,7 @@ fun Container.costsAndSavings(formObservable: ObservableValue<ConsumptionCostsFo
         headerContent = { h3("Coûts et économies réalisables") },
         bodyContent = {
             formPanel(className = "columns column") {
-                select(
+                simpleSelect(
                     options = listOf(Energy.Gaz.asOption(), Energy.Fioul.asOption()),
                     value = energyStore.value.key
                 ) {
@@ -130,7 +131,7 @@ fun Container.costsAndSavings(formObservable: ObservableValue<ConsumptionCostsFo
                     }
                 }
 
-                spinner(null) {
+                simpleSpinner(null) {
                     addCssClass("col-6")
                     addCssClass("col-xs-12")
 
@@ -140,7 +141,7 @@ fun Container.costsAndSavings(formObservable: ObservableValue<ConsumptionCostsFo
                     label = "${it.label} en €/an"
                 }
 
-                spinner(null, label = "Électricité en €/an") {
+                simpleSpinner(null, label = "Électricité en €/an") {
                     addCssClass("col-6")
                     addCssClass("col-xs-12")
 

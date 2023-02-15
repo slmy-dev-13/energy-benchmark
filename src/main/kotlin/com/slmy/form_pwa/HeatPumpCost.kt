@@ -3,7 +3,7 @@ package com.slmy.form_pwa
 import com.slmy.form_pwa.ui.card
 import io.kvision.core.Container
 import io.kvision.form.formPanel
-import io.kvision.form.number.Spinner
+import io.kvision.form.spinner.SimpleSpinner
 import io.kvision.html.br
 import io.kvision.html.div
 import io.kvision.html.h2
@@ -28,7 +28,7 @@ fun Container.heatPumpCost(formObservable: ObservableValue<HeatPumpCostForm>, ne
 
                     add(
                         key = HeatPumpCostForm::heatingDays,
-                        control = Spinner(null, label = "Jours de chauffe") {
+                        control = SimpleSpinner(null, label = "Jours de chauffe") {
                             addCssClass("col-6")
                             addCssClass("col-xs-12")
 
@@ -37,7 +37,7 @@ fun Container.heatPumpCost(formObservable: ObservableValue<HeatPumpCostForm>, ne
                     )
                     add(
                         key = HeatPumpCostForm::compressorHours,
-                        control = Spinner(null, label = "Heures de compresseur") {
+                        control = SimpleSpinner(null, label = "Heures de compresseur") {
                             addCssClass("col-6")
                             addCssClass("col-xs-12")
 
@@ -47,7 +47,7 @@ fun Container.heatPumpCost(formObservable: ObservableValue<HeatPumpCostForm>, ne
 
                     add(
                         key = HeatPumpCostForm::heatPumpCOP,
-                        control = Spinner(null, label = "COP") {
+                        control = SimpleSpinner(null, label = "COP") {
                             addCssClass("col-6")
                             addCssClass("col-xs-12")
 

@@ -1,13 +1,13 @@
 package com.slmy.form_pwa.expenses
 
-import com.slmy.form_pwa.*
 import com.slmy.form_pwa.ui.card
 import com.slmy.form_pwa.ui.diverseColor
 import com.slmy.form_pwa.ui.heatColor
 import com.slmy.form_pwa.ui.waterColor
+import com.slmy.form_pwa.update
 import io.kvision.chart.*
 import io.kvision.core.Container
-import io.kvision.form.select.select
+import io.kvision.form.select.simpleSelect
 import io.kvision.html.div
 import io.kvision.html.h3
 import io.kvision.state.ObservableValue
@@ -42,7 +42,7 @@ fun Container.ratioCard() {
         headerContent = { h3("Proportions") },
         bodyContent = {
             div(className = "col-12") {
-                select(
+                simpleSelect(
                     options = listOf("simple" to "Simple", "combine" to "Combiné"),
                     value = installationType.value
                 ).subscribe { newValue ->

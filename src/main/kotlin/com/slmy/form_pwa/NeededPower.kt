@@ -3,8 +3,7 @@ package com.slmy.form_pwa
 import com.slmy.form_pwa.ui.card
 import io.kvision.core.Container
 import io.kvision.form.formPanel
-import io.kvision.form.number.numeric
-import io.kvision.form.number.spinner
+import io.kvision.form.spinner.simpleSpinner
 import io.kvision.html.br
 import io.kvision.html.div
 import io.kvision.html.h2
@@ -25,7 +24,7 @@ fun Container.neededPower(formObservable: ObservableValue<NeededPowerForm>, need
                         formObservable.value = getData()
                     }
 
-                    spinner(null, label = "Surface en m²") {
+                    simpleSpinner(null, label = "Surface en m²") {
                         addCssClass("col-6")
                         addCssClass("col-xs-12")
 
@@ -33,7 +32,7 @@ fun Container.neededPower(formObservable: ObservableValue<NeededPowerForm>, need
                         subscribe(subscriber)
                     }
 
-                    numeric(null, label = "Hauteur sous plafond en m") {
+                    simpleSpinner(null, label = "Hauteur sous plafond en m") {
                         addCssClass("col-6")
                         addCssClass("col-xs-12")
 
