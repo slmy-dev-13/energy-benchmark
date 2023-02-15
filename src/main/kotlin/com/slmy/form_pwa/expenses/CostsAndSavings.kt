@@ -155,7 +155,7 @@ fun Container.costsAndSavings(formObservable: ObservableValue<ConsumptionCostsFo
 
                 div(className = "btn-group btn-group-block col-12") {
                     button(
-                        text = "Pompe à chaleur (Air / eau)",
+                        text = "Pompe à chaleur (air / eau)",
                         style = ButtonStyle.LIGHT,
                         className = "btn"
                     ).bind(formObservable) {

@@ -5,11 +5,13 @@ import io.kvision.chart.*
 import io.kvision.core.Color
 import io.kvision.core.Container
 import io.kvision.form.formPanel
-import io.kvision.html.h2
+import io.kvision.html.*
 import io.kvision.panel.vPanel
 import io.kvision.state.ObservableState
 import io.kvision.state.ObservableValue
 import io.kvision.state.bind
+import kotlin.math.ceil
+import kotlin.math.floor
 
 private val baseBarChartConfiguration = Configuration(
     type = ChartType.LINE,
@@ -30,53 +32,80 @@ private val baseBarChartConfiguration = Configuration(
     )
 )
 
-private fun buildTimeSeriesDataSets(currentCost: Double, optimizedCost: Double): List<DataSets> {
+private fun buildTimeSeriesDataSets(projectionData: ProjectionData): List<DataSets> {
+    val currentColor = Color("#c66")
+    val optimizedColor = Color("#9d5")
+    val savingsColor = Color("#99dd5550")
+
     return listOf(
         DataSets(
-            label = "Fioul",
-            backgroundColor = listOf(Color("#ff7043")),
-            borderColor = listOf(Color("#ff7043")),
-            data = listOf(
-                currentCost,
-                5 * currentCost,
-                10 * currentCost,
-                20 * currentCost,
-            ),
+            label = "Actuel",
+            backgroundColor = listOf(currentColor),
+            borderColor = listOf(currentColor),
+            data = projectionData.currentOneFiveTenTwenty,
         ),
         DataSets(
-            label = "Pompe à chaleur",
-            backgroundColor = listOf(Color("#66bb6a")),
-            borderColor = listOf(Color("#66bb6a")),
-            data = listOf(
-                optimizedCost,
-                5 * optimizedCost,
-                10 * optimizedCost,
-                20 * optimizedCost,
-            ),
+            label = "Avec la PAC",
+            backgroundColor = listOf(optimizedColor),
+            borderColor = listOf(optimizedColor),
+            data = projectionData.optimizedOneFiveTenTwenty,
+        ),
+        DataSets(
+            label = "Économies",
+            backgroundColor = listOf(savingsColor),
+            borderColor = listOf(savingsColor),
+            data = projectionData.optimizedOneFiveTenTwenty,
+            fill = "-2"
         ),
     )
 }
 
+data class ProjectionData(val currentCost: Double, val optimizedCost: Double) {
+    private fun getOneFiveTenTwenty(cost: Double): List<Double> =
+        listOf(cost, cost * 5.0, cost * 10.0, cost * 20.0).map { ceil(it) }
+
+    private fun getOneTenTwenty(cost: Double): List<Double> =
+        listOf(cost, cost * 10.0, cost * 20.0).map { ceil(it) }
+
+    val currentOneTenTwenty: List<Double> = getOneTenTwenty(currentCost)
+    val optimizedOneTenTwenty: List<Double> = getOneTenTwenty(optimizedCost)
+    val deltaOneTenTwenty: List<Double> = currentOneTenTwenty.zip(optimizedOneTenTwenty).map { it.first - it.second }
+
+    val currentOneFiveTenTwenty: List<Double> = getOneFiveTenTwenty(currentCost)
+    val optimizedOneFiveTenTwenty: List<Double> = getOneFiveTenTwenty(optimizedCost)
+    val deltaOneFiveTenTwenty: List<Double> = currentOneFiveTenTwenty.zip(optimizedOneTenTwenty).map { it.first - it.second }
+
+}
+
 fun Container.costsProjection(formObservable: ObservableValue<ConsumptionCostsForm>, heatPumpCostObservable: ObservableState<Double>) {
     val chartConfigurationStore = ObservableValue(baseBarChartConfiguration)
+    val projectionDataStore = ObservableValue(
+        ProjectionData(
+            currentCost = formObservable.value.fuelCost,
+            optimizedCost = heatPumpCostObservable.getState()
+        )
+    )
 
-    val updateChartConfiguration = {
+    val update = {
+        val projectionData = ProjectionData(
+            currentCost = formObservable.value.fuelCost,
+            optimizedCost = heatPumpCostObservable.getState()
+        )
+
         chartConfigurationStore.update {
             baseBarChartConfiguration.copy(
-                dataSets = buildTimeSeriesDataSets(
-                    formObservable.value.fuelCost,
-                    heatPumpCostObservable.getState()
-                )
+                dataSets = buildTimeSeriesDataSets(projectionData)
             )
         }
+
+        projectionDataStore.update { projectionData }
     }
 
-    formObservable.subscribe { updateChartConfiguration() }
-    heatPumpCostObservable.subscribe { updateChartConfiguration() }
-
+    formObservable.subscribe { update() }
+    heatPumpCostObservable.subscribe { update() }
 
     vPanel(spacing = 16) {
-        h2("Court, moyen et long terme")
+        h2("Graphes des actions sur 10 et 20 ans")
 
         card(
             bodyContent = {
@@ -86,6 +115,42 @@ fun Container.costsProjection(formObservable: ObservableValue<ConsumptionCostsFo
                             configuration = it
                             update(UpdateMode.RESIZE)
                         }
+
+                    br()
+
+                    div(className = "divider col-12")
+
+                    br()
+
+                    table(className = "table table-striped table-bordered").bind(projectionDataStore) {
+                        tr {
+                            th("")
+                            th("1 an")
+                            th("10 ans")
+                            th("20 ans")
+                        }
+                        tr {
+                            td("Actuel")
+
+                            projectionDataStore.value.currentOneTenTwenty.forEach {
+                                td(it.toString())
+                            }
+                        }
+                        tr {
+                            td("Futur")
+
+                            projectionDataStore.value.optimizedOneTenTwenty.forEach {
+                                td(floor(it).toString())
+                            }
+                        }
+                        tr {
+                            td("Gains")
+
+                            projectionDataStore.value.deltaOneTenTwenty.forEach {
+                                td(ceil(it).toString())
+                            }
+                        }
+                    }
 
                     setData(formObservable.value)
                 }

@@ -50,8 +50,9 @@ data class HeatPumpCostForm(
     val heatingDays: Int = 180,
     val compressorHours: Int = 8,
     val heatPumpCOP: Double = 4.6,
+    val powerCost: Double = 0.18,
 )
 
 fun HeatPumpCostForm.computeCost(neededPower: Double): Double {
-    return (neededPower * heatingDays * compressorHours * 0.22) / heatPumpCOP
+    return (neededPower * heatingDays * compressorHours * powerCost) / heatPumpCOP
 }

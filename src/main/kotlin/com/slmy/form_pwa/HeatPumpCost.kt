@@ -16,7 +16,7 @@ import kotlin.math.roundToInt
 
 fun Container.heatPumpCost(formObservable: ObservableValue<HeatPumpCostForm>, needPowerObservable: ObservableState<Double>) {
     vPanel(spacing = 16) {
-        h2("Coût de la pompe à chaleur")
+        h2("Coût annuel de la pompe à chaleur")
 
         card(
             bodyContent = {
@@ -37,7 +37,7 @@ fun Container.heatPumpCost(formObservable: ObservableValue<HeatPumpCostForm>, ne
                     )
                     add(
                         key = HeatPumpCostForm::compressorHours,
-                        control = SimpleSpinner(null, label = "Heures de compresseur") {
+                        control = SimpleSpinner(null, label = "Heures de marche du groupe extérieur") {
                             addCssClass("col-6")
                             addCssClass("col-xs-12")
 
@@ -47,13 +47,24 @@ fun Container.heatPumpCost(formObservable: ObservableValue<HeatPumpCostForm>, ne
 
                     add(
                         key = HeatPumpCostForm::heatPumpCOP,
-                        control = SimpleSpinner(null, label = "COP") {
+                        control = SimpleSpinner(null, label = "Coefficient optimal de performance (C.O.P.)") {
                             addCssClass("col-6")
                             addCssClass("col-xs-12")
 
                             subscribe(subscriber)
                         }
                     )
+
+                    add(
+                        key = HeatPumpCostForm::powerCost,
+                        control = SimpleSpinner(null, label = "Prix du KWh en €") {
+                            addCssClass("col-6")
+                            addCssClass("col-xs-12")
+
+                            subscribe(subscriber)
+                        }
+                    )
+
                     setData(formObservable.value)
                 }
 
@@ -63,7 +74,10 @@ fun Container.heatPumpCost(formObservable: ObservableValue<HeatPumpCostForm>, ne
                 div(className = "bg-gray p-2 text-right mt-2").bind(needPowerObservable) { neededPower ->
                     span("Coût calculé")
                     br()
-                    span(" ${neededPower.roundToInt()} €", className = "h1")
+                    div {
+                        span(content = "(Puissance x Jours de chauffe x Heures de marche x Prix du KWh) / C.O.P.  = ", className = "text-small mr-2")
+                        span(content ="${neededPower.roundToInt()} €", className = "h1")
+                    }
                 }
             }
         )
