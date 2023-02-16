@@ -41,7 +41,7 @@ fun Container.ratios(controller: AppController) {
                     val icon = if (systemType == SystemType.Simple) {
                         "icons/simple.png"
                     } else {
-                        "icons/mixed.webp"
+                        "icons/mixed.png"
                     }
 
                     choiceButton(
