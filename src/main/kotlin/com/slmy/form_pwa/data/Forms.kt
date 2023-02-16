@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ConsumptionCostsForm(
-    val fuelCost: Double = 3000.0,
+    val otherCost: Double = 3000.0,
     val electricityCost: Double = 1000.0,
     val withHeatPump: Boolean = false,
     val withBalloonTD: Boolean = false,

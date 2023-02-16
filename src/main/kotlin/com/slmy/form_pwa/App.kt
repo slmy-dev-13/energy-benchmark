@@ -1,11 +1,15 @@
 package com.slmy.form_pwa
 
 import com.slmy.form_pwa.data.*
-import com.slmy.form_pwa.expenses.energyExpenses
+import com.slmy.form_pwa.expenses.costsAndSavings
+import com.slmy.form_pwa.expenses.ratios
 import com.slmy.form_pwa.timeline.timeLine
 import io.kvision.*
-import io.kvision.html.*
+import io.kvision.html.header
+import io.kvision.html.image
+import io.kvision.html.section
 import io.kvision.panel.root
+import io.kvision.panel.vPanel
 import io.kvision.state.ObservableValue
 import io.kvision.state.sub
 
@@ -15,11 +19,11 @@ class App : Application() {
         require("css/kvapp.css")
     }
 
-    private val consumptionCostsFormObservable = ObservableValue(ConsumptionCostsForm())
+    private val appController = AppController()
+
     private val isolationDataFormObservable = ObservableValue(IsolationDataForm())
     private val neededPowerFormObservable = ObservableValue(NeededPowerForm())
     private val heatPumpCostFormObservable = ObservableValue(HeatPumpCostForm())
-    private val systemTypeObservable = ObservableValue(SystemType.Mixed)
 
     private val isolationIndexStore = isolationDataFormObservable.sub { form ->
         form.computeIsolationIndex()
@@ -50,10 +54,10 @@ class App : Application() {
                 section(className = "navbar-section")
             }
 
-            div(className = "column col-mx-auto col-8 col-sm-12 col-md-10 col-lg-10 col-xl-10 mast my-2") {
+            vPanel(spacing = 24, className = "column col-mx-auto col-8 col-sm-12 col-md-10 col-lg-10 col-xl-10 mast my-2") {
+                ratios(appController)
 
-
-                energyExpenses(consumptionCostsFormObservable, systemTypeObservable)
+                costsAndSavings(appController)
 
                 isolation(isolationDataFormObservable, isolationIndexStore)
 
@@ -61,7 +65,7 @@ class App : Application() {
 
                 heatPumpCost(heatPumpCostFormObservable, heatPumpCostStore)
 
-                costsProjection(consumptionCostsFormObservable, heatPumpCostStore)
+                costsProjection(appController, heatPumpCostStore)
 
                 timeLine()
             }

@@ -1,13 +1,11 @@
 package com.slmy.form_pwa
 
-import com.slmy.form_pwa.data.ConsumptionCostsForm
 import com.slmy.form_pwa.ui.card
 import io.kvision.chart.*
 import io.kvision.core.Color
 import io.kvision.core.Container
-import io.kvision.form.formPanel
+import io.kvision.form.form
 import io.kvision.html.*
-import io.kvision.panel.vPanel
 import io.kvision.state.ObservableState
 import io.kvision.state.ObservableValue
 import io.kvision.state.bind
@@ -73,8 +71,6 @@ data class ProjectionData(val currentCost: Double, val optimizedCost: Double) {
 
     val currentOneFiveTenTwenty: List<Double> = getOneFiveTenTwenty(currentCost)
     val optimizedOneFiveTenTwenty: List<Double> = getOneFiveTenTwenty(optimizedCost)
-    val deltaOneFiveTenTwenty: List<Double> = currentOneFiveTenTwenty.zip(optimizedOneTenTwenty).map { it.first - it.second }
-
 }
 
 private fun Tr.moneyCell(value: Double, bold: Boolean = false) =
@@ -84,18 +80,19 @@ private fun Tr.moneyCell(value: Double, bold: Boolean = false) =
         td("$value €")
     }
 
-fun Container.costsProjection(formObservable: ObservableValue<ConsumptionCostsForm>, heatPumpCostObservable: ObservableState<Double>) {
+fun Container.costsProjection(appController: AppController, heatPumpCostObservable: ObservableState<Double>) {
+    val formObservable = appController.energyCostObservable
     val chartConfigurationStore = ObservableValue(baseBarChartConfiguration)
     val projectionDataStore = ObservableValue(
         ProjectionData(
-            currentCost = formObservable.value.fuelCost,
+            currentCost = formObservable.value.other,
             optimizedCost = heatPumpCostObservable.getState()
         )
     )
 
     val update = {
         val projectionData = ProjectionData(
-            currentCost = formObservable.value.fuelCost,
+            currentCost = formObservable.value.other,
             optimizedCost = heatPumpCostObservable.getState()
         )
 
@@ -111,57 +108,50 @@ fun Container.costsProjection(formObservable: ObservableValue<ConsumptionCostsFo
     formObservable.subscribe { update() }
     heatPumpCostObservable.subscribe { update() }
 
-    vPanel(spacing = 16) {
-        h2("Graphes des actions sur 10 et 20 ans")
-
-        card(
-            bodyContent = {
-                formPanel {
-                    chart(chartConfigurationStore.getState())
-                        .bind(chartConfigurationStore) {
-                            configuration = it
-                            update(UpdateMode.RESIZE)
-                        }
-
-                    br()
-
-                    div(className = "divider col-12")
-
-                    br()
-
-                    table(className = "table table-striped table-bordered").bind(projectionDataStore) {
-                        tr {
-                            th("")
-                            th("1 an")
-                            th("10 ans")
-                            th("20 ans")
-                        }
-                        tr {
-                            td("Actuel")
-
-                            projectionDataStore.value.currentOneTenTwenty.forEach {
-                                moneyCell(ceil(it))
-                            }
-                        }
-                        tr {
-                            td("Futur")
-
-                            projectionDataStore.value.optimizedOneTenTwenty.forEach {
-                                moneyCell(ceil(it))
-                            }
-                        }
-                        tr {
-                            td("Gains")
-
-                            projectionDataStore.value.deltaOneTenTwenty.forEach {
-                                moneyCell(ceil(it), bold = true)
-                            }
-                        }
+    card(
+        headerContent = { h3("Graphes des actions sur 10 et 20 ans") },
+        bodyContent = {
+            form {
+                chart(chartConfigurationStore.getState())
+                    .bind(chartConfigurationStore) {
+                        configuration = it
+                        update(UpdateMode.RESIZE)
                     }
 
-                    setData(formObservable.value)
+                br()
+                div(className = "divider col-12")
+                br()
+
+                table(className = "table table-striped table-bordered").bind(projectionDataStore) {
+                    tr {
+                        th("")
+                        th("1 an")
+                        th("10 ans")
+                        th("20 ans")
+                    }
+                    tr {
+                        td("Actuel")
+
+                        projectionDataStore.value.currentOneTenTwenty.forEach {
+                            moneyCell(ceil(it))
+                        }
+                    }
+                    tr {
+                        td("Futur")
+
+                        projectionDataStore.value.optimizedOneTenTwenty.forEach {
+                            moneyCell(ceil(it))
+                        }
+                    }
+                    tr {
+                        td("Gains")
+
+                        projectionDataStore.value.deltaOneTenTwenty.forEach {
+                            moneyCell(ceil(it), bold = true)
+                        }
+                    }
                 }
             }
-        )
-    }
+        }
+    )
 }

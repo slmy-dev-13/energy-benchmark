@@ -1,5 +1,6 @@
 package com.slmy.form_pwa.expenses
 
+import com.slmy.form_pwa.AppController
 import com.slmy.form_pwa.data.SystemType
 import com.slmy.form_pwa.ui.card
 import com.slmy.form_pwa.ui.diverseColor
@@ -8,10 +9,7 @@ import com.slmy.form_pwa.ui.waterColor
 import com.slmy.form_pwa.update
 import io.kvision.chart.*
 import io.kvision.core.Container
-import io.kvision.html.ButtonStyle
-import io.kvision.html.button
-import io.kvision.html.div
-import io.kvision.html.h3
+import io.kvision.html.*
 import io.kvision.panel.hPanel
 import io.kvision.state.ObservableValue
 import io.kvision.state.bind
@@ -36,11 +34,11 @@ private fun getBasePieChartConfiguration(
     )
 )
 
-fun Container.ratios(systemTypeObservable: ObservableValue<SystemType>) {
+fun Container.ratios(controller: AppController) {
     card(
-        headerContent = { h3("Proportions") },
+        headerContent = { h3("Proportions des dépenses énergétiques") },
         bodyContent = {
-            hPanel(spacing = 16, className = "flex-centered").bind(systemTypeObservable) { currentSystemType ->
+            hPanel(spacing = 16, className = "flex-centered").bind(controller.systemTypeObservable) { currentSystemType ->
                 SystemType.values().forEach { systemType ->
                     val style = if (systemType == currentSystemType) {
                         ButtonStyle.SUCCESS
@@ -49,12 +47,12 @@ fun Container.ratios(systemTypeObservable: ObservableValue<SystemType>) {
                     }
 
                     button(text = systemType.label, style = style, className = "btn-lg").onClick {
-                        systemTypeObservable.update { systemType }
+                        controller.updateSystemType(systemType)
                     }
                 }
             }
 
-            pieCharts(systemTypeObservable)
+            pieCharts(controller.systemTypeObservable)
         }
     )
 }

@@ -8,10 +8,9 @@ import io.kvision.form.check.checkBox
 import io.kvision.form.formPanel
 import io.kvision.html.br
 import io.kvision.html.div
-import io.kvision.html.h2
+import io.kvision.html.h3
 import io.kvision.html.span
 import io.kvision.panel.flexPanel
-import io.kvision.panel.vPanel
 import io.kvision.state.ObservableState
 import io.kvision.state.ObservableValue
 import io.kvision.state.bind
@@ -21,55 +20,52 @@ private fun wrapForLabel(labelContent: String): String {
 }
 
 fun Container.isolation(formObservable: ObservableValue<IsolationDataForm>, isolationIndexObservable: ObservableState<Int>) {
-    vPanel(spacing = 16) {
-        h2("Indice d'isolation")
+    card(
+        headerContent = { h3("Indice d'isolation") },
+        bodyContent = {
+            formPanel {
+                val subscriber: (Boolean) -> Unit = {
+                    formObservable.value = getData()
+                }
 
-        card(
-            bodyContent = {
-                formPanel {
-                    val subscriber: (Boolean) -> Unit = {
-                        formObservable.value = getData()
+                div(className = "columns") {
+                    checkBox(value = false, rich = true, label = wrapForLabel("Maison construite après 2012")) {
+                        addCssClass("column")
+                        bind(IsolationDataForm::houseBuiltAfter2012)
+                        subscribe(subscriber)
                     }
 
-                    div(className = "columns") {
-                        checkBox(value = false, rich = true, label = wrapForLabel("Maison construite après 2012")) {
-                            addCssClass("column")
-                            bind(IsolationDataForm::houseBuiltAfter2012)
+                    div(className = "divider-vert hide-xs")
+
+                    flexPanel(className = "column", spacing = 16, wrap = FlexWrap.WRAP) {
+                        checkBox(value = false, rich = true, label = wrapForLabel("Double vitrage")) {
+                            bind(IsolationDataForm::doubleWindow)
                             subscribe(subscriber)
                         }
 
-                        div(className = "divider-vert hide-xs")
+                        checkBox(value = false, rich = true, label = wrapForLabel("Isolation des combles")) {
+                            bind(IsolationDataForm::fillsIsolation)
+                            subscribe(subscriber)
+                        }
 
-                        flexPanel(className = "column", spacing = 16, wrap = FlexWrap.WRAP) {
-                            checkBox(value = false, rich = true, label = wrapForLabel("Double vitrage")) {
-                                bind(IsolationDataForm::doubleWindow)
-                                subscribe(subscriber)
-                            }
-
-                            checkBox(value = false, rich = true, label = wrapForLabel("Isolation des combles")) {
-                                bind(IsolationDataForm::fillsIsolation)
-                                subscribe(subscriber)
-                            }
-
-                            checkBox(value = false, rich = true, label = wrapForLabel("Vide sanitaire")) {
-                                bind(IsolationDataForm::sanitaryVoid)
-                                subscribe(subscriber)
-                            }
+                        checkBox(value = false, rich = true, label = wrapForLabel("Vide sanitaire")) {
+                            bind(IsolationDataForm::sanitaryVoid)
+                            subscribe(subscriber)
                         }
                     }
-
-                    br()
-
-                    setData(formObservable.value)
                 }
-            },
-            extraContent = {
-                div(className = "card-extra bg-gray p-2 text-right mt-2").bind(isolationIndexObservable) { isolationIndex ->
-                    span("Indice d'isolation")
-                    br()
-                    span("$isolationIndex", className = "h1")
-                }
+
+                br()
+
+                setData(formObservable.value)
             }
-        )
-    }
+        },
+        extraContent = {
+            div(className = "card-extra bg-gray p-2 text-right mt-2").bind(isolationIndexObservable) { isolationIndex ->
+                span("Indice d'isolation")
+                br()
+                span("$isolationIndex", className = "h1")
+            }
+        }
+    )
 }

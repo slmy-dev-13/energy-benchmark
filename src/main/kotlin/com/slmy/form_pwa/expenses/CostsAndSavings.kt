@@ -1,6 +1,8 @@
 package com.slmy.form_pwa.expenses
 
+import com.slmy.form_pwa.AppController
 import com.slmy.form_pwa.data.ConsumptionCostsForm
+import com.slmy.form_pwa.data.SystemType
 import com.slmy.form_pwa.ui.*
 import com.slmy.form_pwa.update
 import io.kvision.chart.*
@@ -13,16 +15,9 @@ import io.kvision.state.ObservableValue
 import io.kvision.state.bind
 import io.kvision.state.sub
 
-enum class Energy(val key: String, val label: String) {
-    Gaz("gaz", "Gaz"),
-    Fioul("fioul", "Fioul");
-
-    companion object {
-        fun fromKey(key: String): Energy =
-            values().first { it.key == key }
-    }
-
-    fun asOption(): Pair<String, String> = key to label
+enum class Energy(val label: String) {
+    Gaz("Gaz"),
+    Fioul("Fioul");
 }
 
 private val baseBarChartConfiguration = Configuration(
@@ -65,38 +60,52 @@ private fun buildLabels(form: ConsumptionCostsForm): List<String> {
     return listOf("Actuel", label, "Économies")
 }
 
-private fun buildBarDataSets(form: ConsumptionCostsForm): List<DataSets> {
-    val heatFuelCost = form.fuelCost * .7
-    val waterFuelCost = form.fuelCost - heatFuelCost
+data class EnergyFactors(val heat: Double, val water: Double, val diverse: Double)
 
-    val optimizedHeatCost = if (form.withHeatPump) heatFuelCost * .3 else heatFuelCost
-    val optimizedWaterCost = if (form.withBalloonTD) waterFuelCost * .3 else waterFuelCost
+private fun buildBarDataSets(form: ConsumptionCostsForm, systemType: SystemType): List<DataSets> {
+    val factors = if (systemType == SystemType.Simple) {
+        EnergyFactors(1.0, 0.4, 0.6)
+    } else {
+        EnergyFactors(0.7, 0.3, 1.0)
+    }
+
+    val heatCost = form.otherCost * factors.heat
+    val diverseCost = form.electricityCost * factors.diverse
+
+    val waterCost = if (systemType == SystemType.Simple) {
+        form.electricityCost - diverseCost
+    } else {
+        form.otherCost - heatCost
+    }
+
+    val optimizedHeatCost = if (form.withHeatPump) heatCost * .3 else heatCost
+    val optimizedWaterCost = if (form.withBalloonTD) waterCost * .3 else waterCost
 
     return listOf(
         DataSets(
             label = "Chauffage",
             backgroundColor = listOf(heatColor),
-            data = listOf(heatFuelCost, optimizedHeatCost),
+            data = listOf(heatCost, optimizedHeatCost),
         ),
         DataSets(
             label = "Eaux chaudes",
             backgroundColor = listOf(waterColor),
-            data = listOf(waterFuelCost, optimizedWaterCost),
+            data = listOf(waterCost, optimizedWaterCost),
         ),
         DataSets(
             label = "Divers",
             backgroundColor = listOf(diverseColor),
-            data = listOf(form.electricityCost, form.electricityCost),
+            data = listOf(diverseCost, diverseCost),
         ),
         DataSets(
             label = "Économies",
             backgroundColor = listOf(savingsColor),
-            data = listOf(0, 0, form.fuelCost - (optimizedHeatCost + optimizedWaterCost)),
+            data = listOf(0, 0, (heatCost + waterCost) - (optimizedHeatCost + optimizedWaterCost)),
         ),
     )
 }
 
-fun Container.costsAndSavings(formObservable: ObservableValue<ConsumptionCostsForm>) {
+fun Container.costsAndSavings(appController: AppController) {
     val toggleButton: Container.(Boolean) -> Unit = { enable ->
         if (enable) {
             addCssClass("btn-success")
@@ -107,19 +116,27 @@ fun Container.costsAndSavings(formObservable: ObservableValue<ConsumptionCostsFo
         }
     }
 
+    val energyStore = ObservableValue(Energy.Gaz)
+    val formObservable = ObservableValue(ConsumptionCostsForm())
+
     val barChartConfigurationStore = formObservable.sub {
+
+        appController.updateEnergyCost(it.electricityCost, it.otherCost)
+
         baseBarChartConfiguration.copy(
-            dataSets = buildBarDataSets(it),
+            dataSets = buildBarDataSets(it, appController.systemTypeObservable.value),
             labels = buildLabels(it)
         )
     }
-
-    val energyStore = ObservableValue(Energy.Gaz)
 
     card(
         headerContent = { h3("Coûts et économies réalisables") },
         bodyContent = {
             formPanel(className = "columns column") {
+                appController.systemTypeObservable.subscribe {
+                    formObservable.update { getData() }
+                }
+
                 hPanel(spacing = 16, className = "col-12 mb-2").bind(energyStore) { currentEnergy ->
                     Energy.values().forEach { energy ->
                         val style = if (energy == currentEnergy) ButtonStyle.SUCCESS else ButtonStyle.OUTLINESUCCESS
@@ -134,7 +151,7 @@ fun Container.costsAndSavings(formObservable: ObservableValue<ConsumptionCostsFo
                     addCssClass("col-6")
                     addCssClass("col-xs-12")
 
-                    bind(ConsumptionCostsForm::fuelCost)
+                    bind(ConsumptionCostsForm::otherCost)
                     subscribe { formObservable.update { getData() } }
                 }.bind(energyStore) {
                     label = "${it.label} en €/an"
@@ -152,28 +169,6 @@ fun Container.costsAndSavings(formObservable: ObservableValue<ConsumptionCostsFo
 
                 br()
 
-                hPanel(spacing = 16, className = "col-12 mb-2 flex-centered") {
-                    button(
-                        text = "Pompe à chaleur (air / eau)",
-                        style = ButtonStyle.LIGHT,
-                        className = "btn-lg"
-                    ).bind(formObservable) {
-                        toggleButton(it.withHeatPump)
-                    }.onClick {
-                        formObservable.update { it.copy(withHeatPump = !it.withHeatPump) }
-                    }
-
-                    button(
-                        text = "Ballon thermodynamique",
-                        style = ButtonStyle.LIGHT,
-                        className = "btn-lg"
-                    ).bind(formObservable) {
-                        toggleButton(it.withBalloonTD)
-                    }.onClick {
-                        formObservable.update { it.copy(withBalloonTD = !it.withBalloonTD) }
-                    }
-                }
-
                 setData(formObservable.value)
             }
         },
@@ -184,6 +179,32 @@ fun Container.costsAndSavings(formObservable: ObservableValue<ConsumptionCostsFo
                 configuration = it
                 update(UpdateMode.RESIZE)
             }
+
+            br()
+
+            hPanel(spacing = 16, className = "col-12 mt-2 flex-centered") {
+                button(
+                    text = "Pompe à chaleur (air / eau)",
+                    style = ButtonStyle.LIGHT,
+                    className = "btn-lg"
+                ).bind(formObservable) {
+                    toggleButton(it.withHeatPump)
+                }.onClick {
+                    formObservable.update { it.copy(withHeatPump = !it.withHeatPump) }
+                }
+
+                button(
+                    text = "Ballon thermodynamique",
+                    style = ButtonStyle.LIGHT,
+                    className = "btn-lg"
+                ).bind(formObservable) {
+                    toggleButton(it.withBalloonTD)
+                }.onClick {
+                    formObservable.update { it.copy(withBalloonTD = !it.withBalloonTD) }
+                }
+            }
+
+            br()
         }
     )
 }
