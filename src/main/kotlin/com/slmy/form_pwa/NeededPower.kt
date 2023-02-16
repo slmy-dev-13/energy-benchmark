@@ -16,7 +16,7 @@ import io.kvision.state.bind
 
 fun Container.neededPower(formObservable: ObservableValue<NeededPowerForm>, needPowerObservable: ObservableState<Double>) {
     vPanel(spacing = 16) {
-        h2("Puissance matérielle nécessaire")
+        h2("Puissance préconisée du matériel")
 
         card(
             bodyContent = {
