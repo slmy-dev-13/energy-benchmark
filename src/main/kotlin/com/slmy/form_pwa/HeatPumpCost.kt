@@ -48,7 +48,7 @@ fun Container.heatPumpCost(formObservable: ObservableValue<HeatPumpCostForm>, ne
 
                     add(
                         key = HeatPumpCostForm::heatPumpCOP,
-                        control = SimpleSpinner(null, label = "Coefficient optimal de performance (C.O.P.)") {
+                        control = SimpleSpinner(null, label = "Coefficient optimal de performance") {
                             addCssClass("col-6")
                             addCssClass("col-xs-12")
 

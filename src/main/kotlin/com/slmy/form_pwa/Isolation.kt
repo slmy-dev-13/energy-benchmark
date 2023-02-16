@@ -65,6 +65,8 @@ fun Container.isolation(formObservable: ObservableValue<IsolationDataForm>, isol
             },
             extraContent = {
                 div(className = "bg-gray p-2 text-right mt-2").bind(isolationIndexObservable) { isolationIndex ->
+                    span("Indice d'isolation")
+                    br()
                     span("$isolationIndex", className = "h1")
                 }
             }

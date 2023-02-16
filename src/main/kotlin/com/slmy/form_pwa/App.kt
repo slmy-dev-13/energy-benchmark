@@ -2,6 +2,7 @@ package com.slmy.form_pwa
 
 import com.slmy.form_pwa.data.*
 import com.slmy.form_pwa.expenses.energyExpenses
+import com.slmy.form_pwa.timeline.timeLine
 import io.kvision.*
 import io.kvision.html.div
 import io.kvision.panel.root
@@ -51,6 +52,8 @@ class App : Application() {
                 heatPumpCost(heatPumpCostFormObservable, heatPumpCostStore)
 
                 costsProjection(consumptionCostsFormObservable, heatPumpCostStore)
+
+                timeLine()
             }
         }
     }
