@@ -6,10 +6,38 @@
     border: 0;
     box-shadow: 0 0.25rem 1rem rgb(48 55 66 / 15%);
     height: 100%;
+    border-radius: 16px !important;
+}
+
+.card-extra {
+    border-radius: 0 0 16px 16px !important;
+}
+
+button {
+    border-radius: 10px !important;
 }
 
 .va-tb {
     vertical-align: text-bottom;
+}
+
+.btn.btn-outline-success {
+    border-color: #2faa3f;
+    color: #2faa3f;
+}
+
+.btn-outline-success:focus, .btn-outline-success:hover {
+    background: none;
+    text-decoration: none;
+}
+
+.navbar {
+    margin-bottom: 32px;
+}
+
+.navbar-center img {
+    height: 120px;
+    padding: 16px 0;
 }
 
 *,

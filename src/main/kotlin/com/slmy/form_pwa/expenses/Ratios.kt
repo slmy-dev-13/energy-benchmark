@@ -8,9 +8,11 @@ import com.slmy.form_pwa.ui.waterColor
 import com.slmy.form_pwa.update
 import io.kvision.chart.*
 import io.kvision.core.Container
-import io.kvision.form.select.simpleSelect
+import io.kvision.html.ButtonStyle
+import io.kvision.html.button
 import io.kvision.html.div
 import io.kvision.html.h3
+import io.kvision.panel.hPanel
 import io.kvision.state.ObservableValue
 import io.kvision.state.bind
 
@@ -38,12 +40,17 @@ fun Container.ratios(systemTypeObservable: ObservableValue<SystemType>) {
     card(
         headerContent = { h3("Proportions") },
         bodyContent = {
-            div(className = "col-12") {
-                simpleSelect(
-                    options = SystemType.values().map { it.name to it.label },
-                    value = systemTypeObservable.value.name
-                ).subscribe { newValue ->
-                    systemTypeObservable.update { SystemType.fromName(newValue) }
+            hPanel(spacing = 16, className = "flex-centered").bind(systemTypeObservable) { currentSystemType ->
+                SystemType.values().forEach { systemType ->
+                    val style = if (systemType == currentSystemType) {
+                        ButtonStyle.SUCCESS
+                    } else {
+                        ButtonStyle.OUTLINESUCCESS
+                    }
+
+                    button(text = systemType.label, style = style, className = "btn-lg").onClick {
+                        systemTypeObservable.update { systemType }
+                    }
                 }
             }
 

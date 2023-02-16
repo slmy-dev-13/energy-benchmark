@@ -4,7 +4,7 @@ import com.slmy.form_pwa.data.*
 import com.slmy.form_pwa.expenses.energyExpenses
 import com.slmy.form_pwa.timeline.timeLine
 import io.kvision.*
-import io.kvision.html.div
+import io.kvision.html.*
 import io.kvision.panel.root
 import io.kvision.state.ObservableValue
 import io.kvision.state.sub
@@ -42,7 +42,17 @@ class App : Application() {
         }
 
         root("kvapp") {
+            header(className = "navbar bg-dark") {
+                section(className = "navbar-section")
+                section(className = "navbar-center") {
+                    image("images/jea-logo.png")
+                }
+                section(className = "navbar-section")
+            }
+
             div(className = "column col-mx-auto col-8 col-sm-12 col-md-10 col-lg-10 col-xl-10 mast my-2") {
+
+
                 energyExpenses(consumptionCostsFormObservable, systemTypeObservable)
 
                 isolation(isolationDataFormObservable, isolationIndexStore)

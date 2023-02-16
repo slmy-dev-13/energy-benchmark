@@ -72,7 +72,7 @@ fun Container.heatPumpCost(formObservable: ObservableValue<HeatPumpCostForm>, ne
                 br()
             },
             extraContent = {
-                div(className = "bg-gray p-2 text-right mt-2").bind(needPowerObservable) { neededPower ->
+                div(className = "card-extra bg-gray p-2 text-right mt-2").bind(needPowerObservable) { neededPower ->
                     span("Coût calculé")
                     br()
                     div {

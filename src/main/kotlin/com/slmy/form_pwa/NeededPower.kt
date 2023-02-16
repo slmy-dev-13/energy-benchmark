@@ -47,7 +47,7 @@ fun Container.neededPower(formObservable: ObservableValue<NeededPowerForm>, need
                 }
             },
             extraContent = {
-                div(className = "bg-gray p-2 text-right mt-2").bind(needPowerObservable) { neededPower ->
+                div(className = "card-extra bg-gray p-2 text-right mt-2").bind(needPowerObservable) { neededPower ->
                     span("Puissance matérielle requise")
                     br()
                     span("$neededPower KWh", className = "h1")

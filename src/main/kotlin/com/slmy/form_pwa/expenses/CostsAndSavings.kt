@@ -6,9 +6,9 @@ import com.slmy.form_pwa.update
 import io.kvision.chart.*
 import io.kvision.core.Container
 import io.kvision.form.formPanel
-import io.kvision.form.select.simpleSelect
 import io.kvision.form.spinner.simpleSpinner
 import io.kvision.html.*
+import io.kvision.panel.hPanel
 import io.kvision.state.ObservableValue
 import io.kvision.state.bind
 import io.kvision.state.sub
@@ -120,14 +120,13 @@ fun Container.costsAndSavings(formObservable: ObservableValue<ConsumptionCostsFo
         headerContent = { h3("Coûts et économies réalisables") },
         bodyContent = {
             formPanel(className = "columns column") {
-                simpleSelect(
-                    options = listOf(Energy.Gaz.asOption(), Energy.Fioul.asOption()),
-                    value = energyStore.value.key
-                ) {
-                    addCssClass("col-12")
-                }.subscribe { newValue ->
-                    if (newValue != null) {
-                        energyStore.update { Energy.fromKey(newValue) }
+                hPanel(spacing = 16, className = "col-12 mb-2").bind(energyStore) { currentEnergy ->
+                    Energy.values().forEach { energy ->
+                        val style = if (energy == currentEnergy) ButtonStyle.SUCCESS else ButtonStyle.OUTLINESUCCESS
+
+                        button(text = energy.label, style = style, className = "btn-lg").onClick {
+                            energyStore.update { energy }
+                        }
                     }
                 }
 
@@ -153,11 +152,11 @@ fun Container.costsAndSavings(formObservable: ObservableValue<ConsumptionCostsFo
 
                 br()
 
-                div(className = "btn-group btn-group-block col-12") {
+                hPanel(spacing = 16, className = "col-12 mb-2 flex-centered") {
                     button(
                         text = "Pompe à chaleur (air / eau)",
                         style = ButtonStyle.LIGHT,
-                        className = "btn"
+                        className = "btn-lg"
                     ).bind(formObservable) {
                         toggleButton(it.withHeatPump)
                     }.onClick {
@@ -167,7 +166,7 @@ fun Container.costsAndSavings(formObservable: ObservableValue<ConsumptionCostsFo
                     button(
                         text = "Ballon thermodynamique",
                         style = ButtonStyle.LIGHT,
-                        className = "btn"
+                        className = "btn-lg"
                     ).bind(formObservable) {
                         toggleButton(it.withBalloonTD)
                     }.onClick {
