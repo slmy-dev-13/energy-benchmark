@@ -1,4 +1,4 @@
-package com.slmy.form_pwa
+package com.slmy.form_pwa.data
 
 import kotlinx.serialization.Serializable
 

@@ -1,5 +1,6 @@
 package com.slmy.form_pwa
 
+import com.slmy.form_pwa.data.ConsumptionCostsForm
 import com.slmy.form_pwa.ui.card
 import io.kvision.chart.*
 import io.kvision.core.Color
@@ -11,7 +12,6 @@ import io.kvision.state.ObservableState
 import io.kvision.state.ObservableValue
 import io.kvision.state.bind
 import kotlin.math.ceil
-import kotlin.math.floor
 
 private val baseBarChartConfiguration = Configuration(
     type = ChartType.LINE,
@@ -77,6 +77,13 @@ data class ProjectionData(val currentCost: Double, val optimizedCost: Double) {
 
 }
 
+private fun Tr.moneyCell(value: Double, bold: Boolean = false) =
+    if (bold) {
+        th("$value €")
+    } else {
+        td("$value €")
+    }
+
 fun Container.costsProjection(formObservable: ObservableValue<ConsumptionCostsForm>, heatPumpCostObservable: ObservableState<Double>) {
     val chartConfigurationStore = ObservableValue(baseBarChartConfiguration)
     val projectionDataStore = ObservableValue(
@@ -133,21 +140,21 @@ fun Container.costsProjection(formObservable: ObservableValue<ConsumptionCostsFo
                             td("Actuel")
 
                             projectionDataStore.value.currentOneTenTwenty.forEach {
-                                td(it.toString())
+                                moneyCell(ceil(it))
                             }
                         }
                         tr {
                             td("Futur")
 
                             projectionDataStore.value.optimizedOneTenTwenty.forEach {
-                                td(floor(it).toString())
+                                moneyCell(ceil(it))
                             }
                         }
                         tr {
                             td("Gains")
 
                             projectionDataStore.value.deltaOneTenTwenty.forEach {
-                                td(ceil(it).toString())
+                                moneyCell(ceil(it), bold = true)
                             }
                         }
                     }

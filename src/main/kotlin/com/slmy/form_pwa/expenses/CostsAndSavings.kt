@@ -1,6 +1,6 @@
 package com.slmy.form_pwa.expenses
 
-import com.slmy.form_pwa.ConsumptionCostsForm
+import com.slmy.form_pwa.data.ConsumptionCostsForm
 import com.slmy.form_pwa.ui.*
 import com.slmy.form_pwa.update
 import io.kvision.chart.*
@@ -62,7 +62,7 @@ private fun buildLabels(form: ConsumptionCostsForm): List<String> {
         "Futur"
     }
 
-    return listOf("Actuel", label)
+    return listOf("Actuel", label, "Économies")
 }
 
 private fun buildBarDataSets(form: ConsumptionCostsForm): List<DataSets> {
@@ -91,7 +91,7 @@ private fun buildBarDataSets(form: ConsumptionCostsForm): List<DataSets> {
         DataSets(
             label = "Économies",
             backgroundColor = listOf(savingsColor),
-            data = listOf(0, form.fuelCost - (optimizedHeatCost + optimizedWaterCost)),
+            data = listOf(0, 0, form.fuelCost - (optimizedHeatCost + optimizedWaterCost)),
         ),
     )
 }

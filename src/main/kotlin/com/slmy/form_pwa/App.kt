@@ -1,5 +1,6 @@
 package com.slmy.form_pwa
 
+import com.slmy.form_pwa.data.*
 import com.slmy.form_pwa.expenses.energyExpenses
 import io.kvision.*
 import io.kvision.html.div
@@ -17,6 +18,7 @@ class App : Application() {
     private val isolationDataFormObservable = ObservableValue(IsolationDataForm())
     private val neededPowerFormObservable = ObservableValue(NeededPowerForm())
     private val heatPumpCostFormObservable = ObservableValue(HeatPumpCostForm())
+    private val systemTypeObservable = ObservableValue(SystemType.Mixed)
 
     private val isolationIndexStore = isolationDataFormObservable.sub { form ->
         form.computeIsolationIndex()
@@ -40,7 +42,7 @@ class App : Application() {
 
         root("kvapp") {
             div(className = "column col-mx-auto col-8 col-sm-12 col-md-10 col-lg-10 col-xl-10 mast my-2") {
-                energyExpenses(consumptionCostsFormObservable)
+                energyExpenses(consumptionCostsFormObservable, systemTypeObservable)
 
                 isolation(isolationDataFormObservable, isolationIndexStore)
 

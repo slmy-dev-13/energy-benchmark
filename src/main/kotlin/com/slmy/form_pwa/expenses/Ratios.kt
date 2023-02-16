@@ -1,5 +1,6 @@
 package com.slmy.form_pwa.expenses
 
+import com.slmy.form_pwa.data.SystemType
 import com.slmy.form_pwa.ui.card
 import com.slmy.form_pwa.ui.diverseColor
 import com.slmy.form_pwa.ui.heatColor
@@ -33,41 +34,40 @@ private fun getBasePieChartConfiguration(
     )
 )
 
-private const val DEFAULT_TYPE = "combine"
-
-fun Container.ratioCard() {
-    val installationType = ObservableValue(DEFAULT_TYPE)
-
+fun Container.ratios(systemTypeObservable: ObservableValue<SystemType>) {
     card(
         headerContent = { h3("Proportions") },
         bodyContent = {
             div(className = "col-12") {
                 simpleSelect(
-                    options = listOf("simple" to "Simple", "combine" to "Combiné"),
-                    value = installationType.value
+                    options = SystemType.values().map { it.name to it.label },
+                    value = systemTypeObservable.value.name
                 ).subscribe { newValue ->
-                    installationType.update { newValue ?: DEFAULT_TYPE }
+                    systemTypeObservable.update { SystemType.fromName(newValue) }
                 }
             }
 
-            pieCharts(installationType)
+            pieCharts(systemTypeObservable)
         }
     )
 }
 
-private fun Container.pieCharts(installationType: ObservableValue<String>) {
+private fun Container.pieCharts(installationType: ObservableValue<SystemType>) {
     val instantChartConfigurationStore = ObservableValue(getBasePieChartConfiguration("Instantané"))
     val electricalChartConfigurationStore = ObservableValue(getBasePieChartConfiguration("Électricité"))
 
     installationType.subscribe { type ->
         instantChartConfigurationStore.update {
-            val dataset = if (type == "simple") {
+            val dataset = if (type == SystemType.Simple) {
                 DataSets(backgroundColor = listOf(heatColor), data = listOf(100))
             } else {
-                DataSets(backgroundColor = listOf(heatColor, waterColor), data = listOf(70, 30))
+                DataSets(
+                    backgroundColor = listOf(heatColor, waterColor),
+                    data = listOf(type.heatRatio * 100, type.waterRatio * 100)
+                )
             }
 
-            val labels = if (type == "simple") {
+            val labels = if (type == SystemType.Simple) {
                 listOf("Chauffage")
             } else {
                 listOf("Chauffage", "Eaux chaudes sanitaires")
@@ -80,10 +80,10 @@ private fun Container.pieCharts(installationType: ObservableValue<String>) {
         }
 
         electricalChartConfigurationStore.update {
-            val dataset = if (type == "simple") {
+            val dataset = if (type == SystemType.Simple) {
                 DataSets(
                     backgroundColor = listOf(diverseColor, waterColor),
-                    data = listOf(60, 40)
+                    data = listOf(type.heatRatio * 100, type.waterRatio * 100)
                 )
             } else {
                 DataSets(
@@ -92,7 +92,7 @@ private fun Container.pieCharts(installationType: ObservableValue<String>) {
                 )
             }
 
-            val labels = if (type == "simple") {
+            val labels = if (type == SystemType.Simple) {
                 listOf("Divers", "Eaux chaudes sanitaires")
             } else {
                 listOf("Divers")
