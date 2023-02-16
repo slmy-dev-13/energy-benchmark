@@ -9,8 +9,10 @@ import io.kvision.core.Container
 import io.kvision.html.div
 import io.kvision.html.h3
 import io.kvision.panel.hPanel
+import io.kvision.state.ObservableState
 import io.kvision.state.ObservableValue
 import io.kvision.state.bind
+import io.kvision.state.sub
 
 private fun getBasePieChartConfiguration(
     title: String,
@@ -32,35 +34,37 @@ private fun getBasePieChartConfiguration(
     )
 )
 
+val SystemType.icon: String
+    get() = when (this) {
+        SystemType.Simple -> "icons/simple.png"
+        SystemType.Mixed  -> "icons/mixed.png"
+    }
+
 fun Container.ratios(controller: AppController) {
+    val systemTypeStore = controller.stateObservable.sub { it.systemType }
+
     card(
         headerContent = { h3("Proportions des dépenses énergétiques") },
         bodyContent = {
-            hPanel(spacing = 16, className = "flex-centered").bind(controller.systemTypeObservable) { currentSystemType ->
+            hPanel(spacing = 16, className = "flex-centered").bind(systemTypeStore) { currentSystemType ->
                 SystemType.values().forEach { systemType ->
-                    val icon = if (systemType == SystemType.Simple) {
-                        "icons/simple.png"
-                    } else {
-                        "icons/mixed.png"
-                    }
 
                     choiceButton(
                         label = systemType.label,
-                        icon = icon,
+                        icon = systemType.icon,
                         isActive = currentSystemType == systemType,
-                        extraClasses = "col-6"
-                    ) {
-                        controller.updateSystemType(systemType)
-                    }
+                        extraClasses = "col-6",
+                        onClick = { controller.updateSystemType(systemType) }
+                    )
                 }
             }
 
-            pieCharts(controller.systemTypeObservable)
+            pieCharts(systemTypeStore)
         }
     )
 }
 
-private fun Container.pieCharts(installationType: ObservableValue<SystemType>) {
+private fun Container.pieCharts(installationType: ObservableState<SystemType>) {
     val instantChartConfigurationStore = ObservableValue(getBasePieChartConfiguration("Instantané"))
     val electricalChartConfigurationStore = ObservableValue(getBasePieChartConfiguration("Électricité"))
 

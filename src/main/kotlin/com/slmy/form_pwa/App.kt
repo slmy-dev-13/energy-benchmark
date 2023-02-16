@@ -1,6 +1,5 @@
 package com.slmy.form_pwa
 
-import com.slmy.form_pwa.data.*
 import com.slmy.form_pwa.expenses.costsAndSavings
 import com.slmy.form_pwa.expenses.ratios
 import com.slmy.form_pwa.timeline.timeLine
@@ -10,8 +9,6 @@ import io.kvision.html.image
 import io.kvision.html.section
 import io.kvision.panel.root
 import io.kvision.panel.vPanel
-import io.kvision.state.ObservableValue
-import io.kvision.state.sub
 
 class App : Application() {
     init {
@@ -21,30 +18,7 @@ class App : Application() {
 
     private val appController = AppController()
 
-    private val isolationDataFormObservable = ObservableValue(IsolationDataForm())
-    private val neededPowerFormObservable = ObservableValue(NeededPowerForm())
-    private val heatPumpCostFormObservable = ObservableValue(HeatPumpCostForm())
-
-    private val isolationIndexStore = isolationDataFormObservable.sub { form ->
-        form.computeIsolationIndex()
-    }
-
-    private val neededPowerStore = neededPowerFormObservable.sub { form ->
-        form.computeNeededPower(isolationIndexStore.getState())
-    }
-
-    private val heatPumpCostStore = heatPumpCostFormObservable.sub { form ->
-        form.computeCost(neededPowerStore.getState())
-    }
-
     override fun start() {
-        isolationIndexStore.subscribe {
-            neededPowerFormObservable.update { it }
-        }
-        neededPowerStore.subscribe {
-            heatPumpCostFormObservable.update { it }
-        }
-
         root("kvapp") {
             header(className = "navbar bg-dark") {
                 section(className = "navbar-section")
@@ -59,13 +33,13 @@ class App : Application() {
 
                 costsAndSavings(appController)
 
-                isolation(isolationDataFormObservable, isolationIndexStore)
+                isolation(appController)
 
-                neededPower(neededPowerFormObservable, neededPowerStore)
+                neededPower(appController)
 
-                heatPumpCost(heatPumpCostFormObservable, heatPumpCostStore)
+                heatPumpCost(appController)
 
-                costsProjection(appController, heatPumpCostStore)
+                costsProjection(appController)
 
                 timeLine()
             }

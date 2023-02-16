@@ -7,7 +7,6 @@ import com.slmy.form_pwa.ui.*
 import com.slmy.form_pwa.update
 import io.kvision.chart.*
 import io.kvision.core.Container
-import io.kvision.form.formPanel
 import io.kvision.form.spinner.simpleSpinner
 import io.kvision.html.*
 import io.kvision.panel.hPanel
@@ -105,90 +104,82 @@ private fun buildBarDataSets(form: ConsumptionCostsForm, systemType: SystemType)
     )
 }
 
-val Energy.icon: String
-    get() = when(this) {
-        Energy.Gaz   -> "icons/gaz.png"
-        Energy.Fioul -> "icons/fioul.png"
+private val toggleButton: Container.(Boolean) -> Unit = { enable ->
+    if (enable) {
+        addCssClass("btn-success")
+        removeCssClass("btn-error")
+    } else {
+        removeCssClass("btn-success")
+        addCssClass("btn-error")
     }
+}
 
 fun Container.costsAndSavings(appController: AppController) {
-    val toggleButton: Container.(Boolean) -> Unit = { enable ->
-        if (enable) {
-            addCssClass("btn-success")
-            removeCssClass("btn-error")
-        } else {
-            removeCssClass("btn-success")
-            addCssClass("btn-error")
-        }
-    }
 
-    val energyStore = ObservableValue(Energy.Gaz)
     val formObservable = ObservableValue(ConsumptionCostsForm())
 
-    val barChartConfigurationStore = formObservable.sub {
-
+    formObservable.subscribe {
         appController.updateEnergyCost(it.electricityCost, it.otherCost)
+    }
 
+    val energyStore = appController.stateObservable.sub { it.energy }
+
+    val barChartConfigurationStore = appController.stateObservable.sub { state ->
         baseBarChartConfiguration.copy(
-            dataSets = buildBarDataSets(it, appController.systemTypeObservable.value),
-            labels = buildLabels(it)
+            dataSets = buildBarDataSets(formObservable.value, state.systemType),
+            labels = buildLabels(formObservable.value)
         )
     }
 
     card(
         headerContent = { h3("Coûts et économies réalisables") },
         bodyContent = {
-            formPanel(className = "columns column") {
-                appController.systemTypeObservable.subscribe {
-                    formObservable.update { getData() }
-                }
-
+            div(className = "columns column") {
                 hPanel(spacing = 16, className = "col-12 mb-2").bind(energyStore) { currentEnergy ->
                     Energy.values().forEach { energy ->
                         choiceButton(
                             label = energy.label,
                             icon = energy.icon,
                             isActive = energy == currentEnergy,
-                            extraClasses = "col-6"
-                        ) {
-                            energyStore.update { energy }
-                        }
-
+                            extraClasses = "col-6",
+                            onClick = { appController.updateEnergy(energy) }
+                        )
                     }
                 }
 
-                simpleSpinner(null) {
+                val state = appController.stateObservable.value
+
+                simpleSpinner(value = state.energyCost.other) {
                     addCssClass("col-6")
                     addCssClass("col-xs-12")
 
-                    bind(ConsumptionCostsForm::otherCost)
-                    subscribe { formObservable.update { getData() } }
+                    subscribe { otherCost ->
+                        formObservable.update { it.copy(otherCost = otherCost?.toDouble() ?: 0.0) }
+                    }
                 }.bind(energyStore) {
                     label = "${it.label} en €/an"
                 }
 
-                simpleSpinner(null, label = "Électricité en €/an") {
+                simpleSpinner(value = state.energyCost.electricity, label = "Électricité en €/an") {
                     addCssClass("col-6")
                     addCssClass("col-xs-12")
 
-                    bind(ConsumptionCostsForm::electricityCost)
-                    subscribe { formObservable.update { getData() } }
+                    subscribe { electricityCost ->
+                        formObservable.update { it.copy(electricityCost = electricityCost?.toDouble() ?: 0.0) }
+                    }
                 }
 
                 div(className = "divider col-12")
 
                 br()
-
-                setData(formObservable.value)
             }
         },
         footerContent = {
-            chart(
-                configuration = barChartConfigurationStore.getState(),
-            ).bind(barChartConfigurationStore) {
-                configuration = it
-                update(UpdateMode.RESIZE)
-            }
+            chart(configuration = barChartConfigurationStore.getState())
+                .bind(barChartConfigurationStore) {
+                    configuration = it
+                    update(UpdateMode.RESIZE)
+                }
 
             br()
 
@@ -218,3 +209,9 @@ fun Container.costsAndSavings(appController: AppController) {
         }
     )
 }
+
+val Energy.icon: String
+    get() = when (this) {
+        Energy.Gaz -> "icons/gaz.png"
+        Energy.Fioul -> "icons/fioul.png"
+    }

@@ -6,7 +6,6 @@ import io.kvision.core.Color
 import io.kvision.core.Container
 import io.kvision.form.form
 import io.kvision.html.*
-import io.kvision.state.ObservableState
 import io.kvision.state.ObservableValue
 import io.kvision.state.bind
 import kotlin.math.ceil
@@ -58,7 +57,7 @@ private fun buildTimeSeriesDataSets(projectionData: ProjectionData): List<DataSe
     )
 }
 
-data class ProjectionData(val currentCost: Double, val optimizedCost: Double) {
+data class ProjectionData(val currentCost: Double = 0.0, val optimizedCost: Double = 0.0) {
     private fun getOneFiveTenTwenty(cost: Double): List<Double> =
         listOf(cost, cost * 5.0, cost * 10.0, cost * 20.0).map { ceil(it) }
 
@@ -74,39 +73,28 @@ data class ProjectionData(val currentCost: Double, val optimizedCost: Double) {
 }
 
 private fun Tr.moneyCell(value: Double, bold: Boolean = false) =
-    if (bold) {
-        th("$value €")
-    } else {
-        td("$value €")
-    }
+    td("$value €", className = "text-bold".takeIf { bold })
 
-fun Container.costsProjection(appController: AppController, heatPumpCostObservable: ObservableState<Double>) {
-    val formObservable = appController.energyCostObservable
+fun Container.costsProjection(appController: AppController) {
     val chartConfigurationStore = ObservableValue(baseBarChartConfiguration)
-    val projectionDataStore = ObservableValue(
-        ProjectionData(
-            currentCost = formObservable.value.other,
-            optimizedCost = heatPumpCostObservable.getState()
-        )
-    )
+    val projectionDataStore = ObservableValue(ProjectionData())
 
-    val update = {
+    val updateProjection = {
+        val state = appController.stateObservable.getState()
+
         val projectionData = ProjectionData(
-            currentCost = formObservable.value.other,
-            optimizedCost = heatPumpCostObservable.getState()
+            currentCost = state.energyCost.other,
+            optimizedCost = state.heatPumpCost
         )
-
-        chartConfigurationStore.update {
-            baseBarChartConfiguration.copy(
-                dataSets = buildTimeSeriesDataSets(projectionData)
-            )
-        }
 
         projectionDataStore.update { projectionData }
+
+        chartConfigurationStore.update {
+            baseBarChartConfiguration.copy(dataSets = buildTimeSeriesDataSets(projectionData))
+        }
     }
 
-    formObservable.subscribe { update() }
-    heatPumpCostObservable.subscribe { update() }
+    appController.stateObservable.subscribe { updateProjection() }
 
     card(
         headerContent = { h3("Graphes des actions sur 10 et 20 ans") },
@@ -122,35 +110,36 @@ fun Container.costsProjection(appController: AppController, heatPumpCostObservab
                 div(className = "divider col-12")
                 br()
 
-                table(className = "table table-striped table-bordered").bind(projectionDataStore) {
-                    tr {
-                        th("")
-                        th("1 an")
-                        th("10 ans")
-                        th("20 ans")
-                    }
-                    tr {
-                        td("Actuel")
+                table(className = "table table-striped table-bordered")
+                    .bind(projectionDataStore) { projectionData ->
+                        tr {
+                            th("")
+                            th("1 an")
+                            th("10 ans")
+                            th("20 ans")
+                        }
+                        tr {
+                            td("Actuel")
 
-                        projectionDataStore.value.currentOneTenTwenty.forEach {
-                            moneyCell(ceil(it))
+                            projectionData.currentOneTenTwenty.forEach {
+                                moneyCell(ceil(it))
+                            }
+                        }
+                        tr {
+                            td("Futur")
+
+                            projectionData.optimizedOneTenTwenty.forEach {
+                                moneyCell(ceil(it))
+                            }
+                        }
+                        tr {
+                            td("Gains")
+
+                            projectionData.deltaOneTenTwenty.forEach {
+                                moneyCell(ceil(it), bold = true)
+                            }
                         }
                     }
-                    tr {
-                        td("Futur")
-
-                        projectionDataStore.value.optimizedOneTenTwenty.forEach {
-                            moneyCell(ceil(it))
-                        }
-                    }
-                    tr {
-                        td("Gains")
-
-                        projectionDataStore.value.deltaOneTenTwenty.forEach {
-                            moneyCell(ceil(it), bold = true)
-                        }
-                    }
-                }
             }
         }
     )

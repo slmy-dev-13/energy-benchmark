@@ -1,48 +1,25 @@
 package com.slmy.form_pwa
 
+import com.slmy.form_pwa.data.EnergyCost
+import com.slmy.form_pwa.data.HeatPumpState
 import com.slmy.form_pwa.data.SystemType
+import com.slmy.form_pwa.data.UsageCost
+import com.slmy.form_pwa.expenses.Energy
 import io.kvision.state.ObservableValue
-
-data class EnergyCost(
-    val electricity: Double = 0.0,
-    val other: Double = 0.0,
-)
-
-data class UsageCost(
-    val heat: Double = 0.0,
-    val water: Double = 0.0,
-    val diverse: Double = 0.0,
-)
+import io.kvision.state.sub
 
 class AppController {
-    private var systemType: SystemType = SystemType.Mixed
-        set(value) {
-            field = value
-            systemTypeObservable.update { value }
-        }
 
-    private var energyCost = EnergyCost()
-        set(value) {
-            field = value
-            energyCostObservable.update { value }
-        }
+    val stateObservable = ObservableValue(HeatPumpState())
 
-    private var usageCost = UsageCost()
-        set(value) {
-            field = value
-            usageCostObservable.update { value }
-        }
-
-    val systemTypeObservable = ObservableValue(systemType)
-    val energyCostObservable = ObservableValue(energyCost)
-    val usageCostObservable = ObservableValue(usageCost)
-
-    init {
-        processUsageCost()
-    }
+    val isolationIndexStore = stateObservable.sub { it.isolationIndex }
+    val neededPowerStore = stateObservable.sub { it.neededPower }
 
     private fun processUsageCost() {
-        usageCost = if (systemType == SystemType.Simple) {
+        val systemType = stateObservable.value.systemType
+        val energyCost = stateObservable.value.energyCost
+
+        val usageCost = if (systemType == SystemType.Simple) {
             UsageCost(
                 heat = systemType.heatRatio * energyCost.other,
                 water = systemType.waterRatio * energyCost.electricity,
@@ -55,16 +32,33 @@ class AppController {
                 diverse = systemType.diverseRatio * energyCost.electricity
             )
         }
+
+        stateObservable.update { it.copy(usageCost = usageCost) }
     }
 
     fun updateSystemType(systemType: SystemType) {
-        this.systemType = systemType
+        stateObservable.update { it.copy(systemType = systemType) }
         processUsageCost()
     }
 
     fun updateEnergyCost(electricity: Double, other: Double) {
-        energyCost = EnergyCost(electricity, other)
+        stateObservable.update { it.copy(energyCost = EnergyCost(electricity, other)) }
         processUsageCost()
     }
 
+    fun updateEnergy(energy: Energy) {
+        stateObservable.update { it.copy(energy = energy) }
+    }
+
+    fun updateIsolationIndex(isolationIndex: Int) {
+        stateObservable.update { it.copy(isolationIndex = isolationIndex) }
+    }
+
+    fun updateNeededPower(neededPower: Double) {
+        stateObservable.update { it.copy(neededPower = neededPower) }
+    }
+
+    fun updateHeatPumpCost(heatPumpCost: Double) {
+        stateObservable.update { it.copy(heatPumpCost = heatPumpCost) }
+    }
 }
