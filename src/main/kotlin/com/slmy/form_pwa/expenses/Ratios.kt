@@ -39,7 +39,7 @@ fun Container.ratios(controller: AppController) {
             hPanel(spacing = 16, className = "flex-centered").bind(controller.systemTypeObservable) { currentSystemType ->
                 SystemType.values().forEach { systemType ->
                     val icon = if (systemType == SystemType.Simple) {
-                        "icons/simple.webp"
+                        "icons/simple.png"
                     } else {
                         "icons/mixed.webp"
                     }
