@@ -42,6 +42,42 @@ button {
     padding: 16px 0;
 }
 
+.btn-choice {
+    border: solid 3px #C9C9C9;
+    border-radius: 10px;
+    display: flex;
+    padding: 12px;
+}
+
+.btn-choice > img {
+    height: 64px;
+}
+
+.btn-choice > label {
+    margin-left: 12px;
+    margin-right: 12px;
+    width: 75%;
+}
+
+.btn-choice > img.check-icon {
+    opacity: 0;
+    height: 36px;
+}
+
+.btn-choice.active {
+    border-color: #2faa3f;
+    transition: border .2s;
+}
+
+.btn-choice.active > .check-icon {
+    opacity: 1;
+}
+
+.btn-choice.active > label {
+    font-weight: bold;
+}
+
+
 *,
 *::before,
 *::after {

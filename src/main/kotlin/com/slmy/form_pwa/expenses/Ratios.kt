@@ -2,14 +2,12 @@ package com.slmy.form_pwa.expenses
 
 import com.slmy.form_pwa.AppController
 import com.slmy.form_pwa.data.SystemType
-import com.slmy.form_pwa.ui.card
-import com.slmy.form_pwa.ui.diverseColor
-import com.slmy.form_pwa.ui.heatColor
-import com.slmy.form_pwa.ui.waterColor
+import com.slmy.form_pwa.ui.*
 import com.slmy.form_pwa.update
 import io.kvision.chart.*
 import io.kvision.core.Container
-import io.kvision.html.*
+import io.kvision.html.div
+import io.kvision.html.h3
 import io.kvision.panel.hPanel
 import io.kvision.state.ObservableValue
 import io.kvision.state.bind
@@ -40,13 +38,18 @@ fun Container.ratios(controller: AppController) {
         bodyContent = {
             hPanel(spacing = 16, className = "flex-centered").bind(controller.systemTypeObservable) { currentSystemType ->
                 SystemType.values().forEach { systemType ->
-                    val style = if (systemType == currentSystemType) {
-                        ButtonStyle.SUCCESS
+                    val icon = if (systemType == SystemType.Simple) {
+                        "icons/simple.webp"
                     } else {
-                        ButtonStyle.OUTLINESUCCESS
+                        "icons/mixed.webp"
                     }
 
-                    button(text = systemType.label, style = style, className = "btn-lg").onClick {
+                    choiceButton(
+                        label = systemType.label,
+                        icon = icon,
+                        isActive = currentSystemType == systemType,
+                        extraClasses = "col-6"
+                    ) {
                         controller.updateSystemType(systemType)
                     }
                 }

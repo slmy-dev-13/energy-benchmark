@@ -1,9 +1,8 @@
 package com.slmy.form_pwa.ui
 
 import io.kvision.core.Container
-import io.kvision.html.div
-import io.kvision.html.footer
-import io.kvision.html.header
+import io.kvision.core.onClick
+import io.kvision.html.*
 
 fun Container.card(
     headerContent: (Container.() -> Unit)? = null,
@@ -26,5 +25,22 @@ fun Container.card(
 
         extraContent?.invoke(this)
     }
+}
 
+fun Container.choiceButton(
+    label: String,
+    icon: String,
+    isActive: Boolean,
+    extraClasses: String = "",
+    onClick: () -> Unit
+) {
+    val activeClass = if (isActive) "active" else ""
+
+    div(className = "btn-choice flex-centered $activeClass $extraClasses") {
+        image(icon, className = "icon")
+        label(label)
+        image("icons/ic_check_circle.svg", className = "check-icon")
+    }.onClick {
+        onClick()
+    }
 }

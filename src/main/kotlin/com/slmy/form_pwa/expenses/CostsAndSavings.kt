@@ -105,6 +105,12 @@ private fun buildBarDataSets(form: ConsumptionCostsForm, systemType: SystemType)
     )
 }
 
+val Energy.icon: String
+    get() = when(this) {
+        Energy.Gaz   -> "icons/gaz.png"
+        Energy.Fioul -> "icons/fioul.png"
+    }
+
 fun Container.costsAndSavings(appController: AppController) {
     val toggleButton: Container.(Boolean) -> Unit = { enable ->
         if (enable) {
@@ -139,11 +145,15 @@ fun Container.costsAndSavings(appController: AppController) {
 
                 hPanel(spacing = 16, className = "col-12 mb-2").bind(energyStore) { currentEnergy ->
                     Energy.values().forEach { energy ->
-                        val style = if (energy == currentEnergy) ButtonStyle.SUCCESS else ButtonStyle.OUTLINESUCCESS
-
-                        button(text = energy.label, style = style, className = "btn-lg").onClick {
+                        choiceButton(
+                            label = energy.label,
+                            icon = energy.icon,
+                            isActive = energy == currentEnergy,
+                            extraClasses = "col-6"
+                        ) {
                             energyStore.update { energy }
                         }
+
                     }
                 }
 
