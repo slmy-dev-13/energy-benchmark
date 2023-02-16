@@ -9,7 +9,7 @@ plugins {
     id("io.kvision") version kvisionVersion
 }
 
-version = "1.0.2"
+version = "1.0.3"
 group = "com.jea"
 
 repositories {
