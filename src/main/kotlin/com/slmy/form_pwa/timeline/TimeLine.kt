@@ -50,7 +50,7 @@ private enum class Step(
     Bon("Montage du dossier", bonDescription, 0, isFree = true),
     VisiteTech("Visite Technique", visiteTechDescription, 1, isFree = true),
     Pose("Pose du matériel", poseDescription, 1, isFree = true),
-    Report("Report du paiement", "Période de 6 mois durant laquelle vous percevrez l'ensemble de vos aides.", 0, isEllipse = true),
+    Report("Report de la 1ère mensualité", "Période de 6 mois durant laquelle vous percevrez l'ensemble de vos aides.", 0, isFree = true, isEllipse = true),
     Paiement("Première mensualité", null, 7),
 }
 

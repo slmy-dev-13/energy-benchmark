@@ -197,6 +197,10 @@ button {
     position: relative;
 }
 
+.timeline-item .content h4 {
+    font-weight: bold;
+}
+
 .timeline-item .content p {
     margin: 0;
     font-size: 16px;
