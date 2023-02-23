@@ -1,8 +1,8 @@
 package com.slmy.form_pwa
 
 import com.slmy.form_pwa.data.EnergyCost
+import com.slmy.form_pwa.data.Orientation
 import com.slmy.form_pwa.data.SolarPanelState
-import com.slmy.form_pwa.solar.Orientation
 import io.kvision.state.ObservableValue
 
 class SolarController {
@@ -13,9 +13,17 @@ class SolarController {
         stateObservable.update { it.copy(energyCost = EnergyCost(electricity)) }
     }
 
-    fun updateSurfaceAndOrientation(surface: Double, orientation: Orientation) {
+    fun updateSurface(surface: Double) {
         stateObservable.update {
-            it.copy(surface = surface, orientation = orientation)
+            it.copy(surface = surface)
         }
+    }
+
+    fun updateSunExposition(sunHours: Int, orientation: Orientation) {
+        stateObservable.update { it.copy(sunHours = sunHours, orientation = orientation) }
+    }
+
+    fun updateCurrentConsumption(consumption: Int) {
+        stateObservable.update { it.copy(currentConsumption = consumption) }
     }
 }

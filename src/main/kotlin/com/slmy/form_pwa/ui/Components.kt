@@ -9,8 +9,8 @@ fun Container.card(
     bodyContent: (Container.() -> Unit)? = null,
     footerContent: (Container.() -> Unit)? = null,
     extraContent: (Container.() -> Unit)? = null,
-) {
-    div(className = "card") {
+): Div {
+    return div(className = "card") {
         headerContent?.let {
             header(className = "card-header") { it.invoke(this) }
         }

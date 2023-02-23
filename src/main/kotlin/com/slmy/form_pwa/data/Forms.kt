@@ -1,6 +1,5 @@
 package com.slmy.form_pwa.data
 
-import com.slmy.form_pwa.solar.Orientation
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -66,9 +65,15 @@ fun HeatPumpCostForm.computeCost(neededPower: Double): Double {
 }
 
 @Serializable
-data class SolarNeedForm(
+data class SolarMaxCapacityForm(
     val length: Double = 0.0,
     val width: Double = 0.0,
-    val orientation: Orientation = Orientation.S,
-    val sunHours: Int = 0
 )
+
+@Serializable
+data class SolarOptimalPowerForm(
+    val orientation: Orientation = Orientation.S,
+    val sunHours: Int = 6,
+    val currentConsumption: Int = 0
+)
+
