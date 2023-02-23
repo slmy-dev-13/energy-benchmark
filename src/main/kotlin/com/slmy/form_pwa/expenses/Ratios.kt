@@ -25,30 +25,6 @@ val SystemType.icon: String
         SystemType.Mixed  -> "icons/mixed.png"
     }
 
-fun Container.ratios(controller: AppController) {
-    val systemTypeStore = controller.stateObservable.sub { it.systemType }
-
-    card(
-        headerContent = { h3("Proportions des dépenses énergétiques") },
-        bodyContent = {
-            hPanel(spacing = 16, className = "flex-centered").bind(systemTypeStore) { currentSystemType ->
-                SystemType.values().forEach { systemType ->
-
-                    choiceButton(
-                        label = systemType.label,
-                        icon = systemType.icon,
-                        isActive = currentSystemType == systemType,
-                        extraClasses = "col-6",
-                        onClick = { controller.updateSystemType(systemType) }
-                    )
-                }
-            }
-
-            pieCharts(systemTypeStore)
-        }
-    )
-}
-
 private fun defaultPieOptions(name: String, title: String) = HighchartsOptions(
     title = TitleOptions(title, "center"),
     series = listOf(
@@ -68,9 +44,12 @@ private fun defaultPieOptions(name: String, title: String) = HighchartsOptions(
             cursor = "pointer",
             dataLabels = DataLabelsOptions(
                 enabled = true,
-                format = "<b>{point.name}</b>: {point.percentage:.1f} %",
+                format = "{point.percentage:.0f} %",
                 distance = -75,
-                filter = Filter("percentage", ">", 0)
+                filter = Filter("percentage", ">", 0),
+                style = TextStyleOptions(
+                    fontSize = "16px"
+                )
             )
         )
     )
@@ -132,3 +111,28 @@ private fun Container.pieCharts(installationType: ObservableState<SystemType>) {
             }
     }
 }
+
+fun Container.ratios(controller: AppController) {
+    val systemTypeStore = controller.stateObservable.sub { it.systemType }
+
+    card(
+        headerContent = { h3("Proportions des dépenses énergétiques") },
+        bodyContent = {
+            hPanel(spacing = 16, className = "flex-centered").bind(systemTypeStore) { currentSystemType ->
+                SystemType.values().forEach { systemType ->
+
+                    choiceButton(
+                        label = systemType.label,
+                        icon = systemType.icon,
+                        isActive = currentSystemType == systemType,
+                        extraClasses = "col-6",
+                        onClick = { controller.updateSystemType(systemType) }
+                    )
+                }
+            }
+
+            pieCharts(systemTypeStore)
+        }
+    )
+}
+

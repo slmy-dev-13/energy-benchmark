@@ -1,11 +1,13 @@
 package com.slmy.form_pwa.expenses
 
 import com.slmy.form_pwa.AppController
+import com.slmy.form_pwa.chart.highchartsDiv
 import com.slmy.form_pwa.data.ConsumptionCostsForm
 import com.slmy.form_pwa.data.SystemType
-import com.slmy.form_pwa.ui.*
+import com.slmy.form_pwa.js.*
+import com.slmy.form_pwa.ui.card
+import com.slmy.form_pwa.ui.choiceButton
 import com.slmy.form_pwa.update
-import io.kvision.chart.*
 import io.kvision.core.Container
 import io.kvision.form.spinner.simpleSpinner
 import io.kvision.html.*
@@ -14,54 +16,78 @@ import io.kvision.state.ObservableValue
 import io.kvision.state.bind
 import io.kvision.state.sub
 
+private const val waterColor = "#09c"
+private const val heatColor = "#C66"
+private const val diverseColor = "#ed0"
+private const val savingsColor = "#9d5"
+
 enum class Energy(val label: String) {
     Gaz("Gaz"),
     Fioul("Fioul");
 }
 
-private val baseBarChartConfiguration = Configuration(
-    type = ChartType.BAR,
-    dataSets = emptyList(),
-    labels = listOf("Actuel", "Actuel"),
-    options = ChartOptions(
-        scales = mapOf(
-            "x" to ChartScales(stacked = true),
-            "y" to ChartScales(
-                stacked = true,
-                ticks = TickOptions(callback = { label, _, _ -> " $label €" })
+data class EnergyFactors(val heat: Double, val water: Double, val diverse: Double)
+
+private val toggleButton: Container.(Boolean) -> Unit = { enable ->
+    if (enable) {
+        addCssClass("btn-success")
+        removeCssClass("btn-error")
+    } else {
+        removeCssClass("btn-success")
+        addCssClass("btn-error")
+    }
+}
+
+private fun defaultChartOptions() = HighchartsOptions(
+    chart = ChartOptions("column"),
+    title = TitleOptions(text = "", align = "center"),
+    xAxis = XAxisOptions(categories = listOf("Actuel", "Futur", "Économies")),
+    yAxis = YAxisOptions(
+        min = 0,
+        title = TitleOptions("", ""),
+        stackLabels = StackLabelsOptions(
+            enabled = true,
+            format = "{total} €",
+            style = TextStyleOptions(
+                fontWeight = "bold",
+                color = "black",
+                textOutline = "none"
             )
         ),
-        plugins = PluginsOptions(
-            legend = LegendOptions(display = true, position = Position.TOP),
-            tooltip = TooltipOptions(
-                callbacks = TooltipCallback(label = { " ${it.formattedValue} €" })
+        labels = StackLabelsOptions(
+            enabled = true,
+            format = "{value} €",
+        )
+    ),
+    plotOptions = PlotOptions(
+        column = ColumnPlotOptions(
+            stacking = "normal",
+            dataLabels = DataLabelsOptions(
+                enabled = true,
+                format = "{point.y} €",
+                filter = Filter("y", ">", 0),
+                style = TextStyleOptions(fontSize = "14px")
             )
         )
+    ),
+    legend = LegendOptions(align = "center", verticalAlign = "top"),
+    series = listOf(
+        columnSeries(name = "Économie", rawData = listOf(0.0, 0.0, 0.0), color = savingsColor),
+        columnSeries(name = "Divers", rawData = listOf(0.0, 0.0, 0.0), color = diverseColor),
+        columnSeries(name = "Eaux chaudes", rawData = listOf(0.0, 0.0, 0.0), color = waterColor),
+        columnSeries(name = "Chauffage", rawData = listOf(0.0, 0.0, 0.0), color = heatColor),
     )
 )
 
-private fun buildLabels(form: ConsumptionCostsForm): List<String> {
-    val optionsLabels = buildList {
-        if (form.withHeatPump) {
-            add("PAC")
-        }
-        if (form.withBalloonTD) {
-            add("BTD")
-        }
-    }
-
-    val label = if (optionsLabels.isNotEmpty()) {
-        "Futur (${optionsLabels.joinToString(" + ")})"
-    } else {
-        "Futur"
-    }
-
-    return listOf("Actuel", label, "Économies")
+private fun columnSeries(name: String, rawData: List<Double>, color: String): SeriesOptions {
+    return SeriesOptions(
+        name = name,
+        color = color,
+        data = rawData.map { ColumnDataPoint(name, y = it, color = color) }
+    )
 }
 
-data class EnergyFactors(val heat: Double, val water: Double, val diverse: Double)
-
-private fun buildBarDataSets(form: ConsumptionCostsForm, systemType: SystemType): List<DataSets> {
+private fun computeSeries(form: ConsumptionCostsForm, systemType: SystemType): List<SeriesOptions> {
     val factors = if (systemType == SystemType.Simple) {
         EnergyFactors(1.0, 0.4, 0.6)
     } else {
@@ -80,42 +106,16 @@ private fun buildBarDataSets(form: ConsumptionCostsForm, systemType: SystemType)
     val optimizedHeatCost = if (form.withHeatPump) heatCost * .3 else heatCost
     val optimizedWaterCost = if (form.withBalloonTD) waterCost * .3 else waterCost
 
+
     return listOf(
-        DataSets(
-            label = "Chauffage",
-            backgroundColor = listOf(heatColor),
-            data = listOf(heatCost, optimizedHeatCost),
-        ),
-        DataSets(
-            label = "Eaux chaudes",
-            backgroundColor = listOf(waterColor),
-            data = listOf(waterCost, optimizedWaterCost),
-        ),
-        DataSets(
-            label = "Divers",
-            backgroundColor = listOf(diverseColor),
-            data = listOf(diverseCost, diverseCost),
-        ),
-        DataSets(
-            label = "Économies",
-            backgroundColor = listOf(savingsColor),
-            data = listOf(0, 0, (heatCost + waterCost) - (optimizedHeatCost + optimizedWaterCost)),
-        ),
+        columnSeries("Économies", listOf(0.0, 0.0, (heatCost + waterCost) - (optimizedHeatCost + optimizedWaterCost)), savingsColor),
+        columnSeries("Divers", listOf(diverseCost, diverseCost, 0.0), diverseColor),
+        columnSeries("Eaux chaudes", listOf(waterCost, optimizedWaterCost, 0.0), waterColor),
+        columnSeries("Chauffage", listOf(heatCost, optimizedHeatCost, 0.0), heatColor),
     )
 }
 
-private val toggleButton: Container.(Boolean) -> Unit = { enable ->
-    if (enable) {
-        addCssClass("btn-success")
-        removeCssClass("btn-error")
-    } else {
-        removeCssClass("btn-success")
-        addCssClass("btn-error")
-    }
-}
-
 fun Container.costsAndSavings(appController: AppController) {
-
     val formObservable = ObservableValue(ConsumptionCostsForm())
 
     formObservable.subscribe {
@@ -124,11 +124,8 @@ fun Container.costsAndSavings(appController: AppController) {
 
     val energyStore = appController.stateObservable.sub { it.energy }
 
-    val barChartConfigurationStore = appController.stateObservable.sub { state ->
-        baseBarChartConfiguration.copy(
-            dataSets = buildBarDataSets(formObservable.value, state.systemType),
-            labels = buildLabels(formObservable.value)
-        )
+    val chartOptionsStore = appController.stateObservable.sub { state ->
+        defaultChartOptions().copy(series = computeSeries(formObservable.value, state.systemType))
     }
 
     card(
@@ -175,11 +172,12 @@ fun Container.costsAndSavings(appController: AppController) {
             }
         },
         footerContent = {
-            chart(configuration = barChartConfigurationStore.getState())
-                .bind(barChartConfigurationStore) {
-                    configuration = it
-                    update(UpdateMode.RESIZE)
-                }
+
+            highchartsDiv("savingsChart", options = HighchartsOptions(), className = "col-12") {
+
+            }.bind(chartOptionsStore) {
+                options = it
+            }
 
             br()
 
