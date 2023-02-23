@@ -1,4 +1,4 @@
-package com.slmy.form_pwa.expenses
+package com.slmy.form_pwa.heat_pump
 
 import com.slmy.form_pwa.AppController
 import com.slmy.form_pwa.chart.highchartsDiv

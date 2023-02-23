@@ -1,8 +1,9 @@
-package com.slmy.form_pwa.expenses
+package com.slmy.form_pwa.solar
 
 import com.slmy.form_pwa.SolarController
 import com.slmy.form_pwa.chart.highchartsDiv
 import com.slmy.form_pwa.data.SolarConsumptionCostsForm
+import com.slmy.form_pwa.data.EnergyFactors
 import com.slmy.form_pwa.js.*
 import com.slmy.form_pwa.ui.card
 import com.slmy.form_pwa.update

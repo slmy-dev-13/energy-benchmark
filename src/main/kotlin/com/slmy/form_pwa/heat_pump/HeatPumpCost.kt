@@ -1,7 +1,9 @@
-package com.slmy.form_pwa
+package com.slmy.form_pwa.heat_pump
 
+import com.slmy.form_pwa.AppController
 import com.slmy.form_pwa.data.HeatPumpCostForm
 import com.slmy.form_pwa.data.computeCost
+import com.slmy.form_pwa.notify
 import com.slmy.form_pwa.ui.card
 import io.kvision.core.Container
 import io.kvision.form.formPanel

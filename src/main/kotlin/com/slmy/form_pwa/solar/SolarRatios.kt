@@ -1,14 +1,11 @@
-package com.slmy.form_pwa.expenses
+package com.slmy.form_pwa.solar
 
 import com.slmy.form_pwa.chart.highchartsDiv
-import com.slmy.form_pwa.data.SystemType
 import com.slmy.form_pwa.js.*
 import com.slmy.form_pwa.ui.card
 import io.kvision.core.Container
 import io.kvision.html.div
 import io.kvision.html.h3
-import io.kvision.state.bind
-import io.kvision.state.sub
 
 private const val waterColor = "#09c"
 private const val heatColor = "#C66"

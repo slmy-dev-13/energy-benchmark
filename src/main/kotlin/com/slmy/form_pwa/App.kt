@@ -1,10 +1,9 @@
 package com.slmy.form_pwa
 
-import com.slmy.form_pwa.expenses.costsAndSavings
-import com.slmy.form_pwa.expenses.ratios
-import com.slmy.form_pwa.expenses.solarCostsAndSavings
-import com.slmy.form_pwa.expenses.solarRatios
-import com.slmy.form_pwa.timeline.timeLine
+import com.slmy.form_pwa.heat_pump.*
+import com.slmy.form_pwa.solar.solarCostsAndSavings
+import com.slmy.form_pwa.solar.solarRatios
+import com.slmy.form_pwa.solar.solarNeed
 import io.kvision.*
 import io.kvision.core.Container
 import io.kvision.html.button
@@ -58,6 +57,7 @@ class App : Application() {
                     Page.Solar    -> {
                         solarRatios()
                         solarCostsAndSavings(solarController)
+                        solarNeed(solarController)
                     }
                 }
             }

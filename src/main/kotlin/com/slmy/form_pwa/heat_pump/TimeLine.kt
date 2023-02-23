@@ -1,4 +1,4 @@
-package com.slmy.form_pwa.timeline
+package com.slmy.form_pwa.heat_pump
 
 import com.slmy.form_pwa.data.Month
 import com.slmy.form_pwa.ui.card
@@ -8,7 +8,6 @@ import io.kvision.form.form
 import io.kvision.form.select.simpleSelect
 import io.kvision.form.spinner.simpleSpinner
 import io.kvision.html.*
-import io.kvision.panel.vPanel
 import io.kvision.state.ObservableValue
 import io.kvision.state.bind
 import io.kvision.types.LocalDate

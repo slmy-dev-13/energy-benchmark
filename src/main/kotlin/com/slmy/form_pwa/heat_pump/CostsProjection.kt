@@ -1,8 +1,10 @@
-package com.slmy.form_pwa
+package com.slmy.form_pwa.heat_pump
 
+import com.slmy.form_pwa.AppController
 import com.slmy.form_pwa.chart.highchartsDiv
 import com.slmy.form_pwa.js.*
 import com.slmy.form_pwa.ui.card
+import com.slmy.form_pwa.update
 import io.kvision.core.Container
 import io.kvision.form.form
 import io.kvision.html.*
