@@ -79,6 +79,10 @@ data class ColumnDataPoint(
     }
 }
 
+data class NumberDataPoint(var value: Number) : DataPoint {
+    override fun toJs(): dynamic = value
+}
+
 data class PlotOptions(
     var pie: PiePlotOptions? = null,
     var column: ColumnPlotOptions? = null,
@@ -107,11 +111,13 @@ data class PiePlotOptions(
 
 data class ColumnPlotOptions(
     var stacking: String = "normal",
+    var borderRadius: Int? = null,
     var dataLabels: DataLabelsOptions
 ) {
     fun toJs(): dynamic {
         return obj {
             this.stacking = stacking
+            borderRadius?.let { this.borderRadius = it }
             this.dataLabels = dataLabels.toJs()
         }
     }
@@ -175,7 +181,7 @@ data class TextStyleOptions(
     }
 }
 
-data class StackLabelsOptions(
+data class LabelsOptions(
     var enabled: Boolean,
     var format: String? = null,
     var style: TextStyleOptions? = null
@@ -192,8 +198,8 @@ data class StackLabelsOptions(
 data class YAxisOptions(
     var min: dynamic,
     var title: TitleOptions? = null,
-    var stackLabels: StackLabelsOptions? = null,
-    var labels: StackLabelsOptions? = null
+    var stackLabels: LabelsOptions? = null,
+    var labels: LabelsOptions? = null
 ) {
     fun toJs(): dynamic {
         return obj {

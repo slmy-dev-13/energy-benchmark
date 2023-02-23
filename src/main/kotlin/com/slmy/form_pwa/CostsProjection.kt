@@ -1,8 +1,8 @@
 package com.slmy.form_pwa
 
+import com.slmy.form_pwa.chart.highchartsDiv
+import com.slmy.form_pwa.js.*
 import com.slmy.form_pwa.ui.card
-import io.kvision.chart.*
-import io.kvision.core.Color
 import io.kvision.core.Container
 import io.kvision.form.form
 import io.kvision.html.*
@@ -10,52 +10,32 @@ import io.kvision.state.ObservableValue
 import io.kvision.state.bind
 import kotlin.math.ceil
 
-private val baseBarChartConfiguration = Configuration(
-    type = ChartType.LINE,
-    dataSets = emptyList(),
-    labels = listOf("1 an", "5 ans", "10 ans", "20 ans"),
-    options = ChartOptions(
-        plugins = PluginsOptions(
-            legend = LegendOptions(display = true, position = Position.TOP),
-            tooltip = TooltipOptions(
-                callbacks = TooltipCallback(label = { "${it.formattedValue} €" })
-            )
-        ),
-        scales = mapOf(
-            "y" to ChartScales(
-                ticks = TickOptions(callback = { label, _, _ -> "$label €" })
-            )
-        ),
-    )
-)
+private const val currentColor = "#c66"
+private const val optimizedColor = "#9d5"
+private const val savingsColor = "#99dd5550"
 
-private fun buildTimeSeriesDataSets(projectionData: ProjectionData): List<DataSets> {
-    val currentColor = Color("#c66")
-    val optimizedColor = Color("#9d5")
-    val savingsColor = Color("#99dd5550")
-
-    return listOf(
-        DataSets(
-            label = "Actuel",
-            backgroundColor = listOf(currentColor),
-            borderColor = listOf(currentColor),
-            data = projectionData.currentOneFiveTenTwenty,
-        ),
-        DataSets(
-            label = "Avec la PAC",
-            backgroundColor = listOf(optimizedColor),
-            borderColor = listOf(optimizedColor),
-            data = projectionData.optimizedOneFiveTenTwenty,
-        ),
-        DataSets(
-            label = "Économies",
-            backgroundColor = listOf(savingsColor),
-            borderColor = listOf(savingsColor),
-            data = projectionData.optimizedOneFiveTenTwenty,
-            fill = "-2"
-        ),
+private fun series(name: String, color: String, rawData: List<Number>): SeriesOptions {
+    return SeriesOptions(
+        name = name,
+        color = color,
+        data = rawData.map { NumberDataPoint(it) }
     )
 }
+
+private val defaultChartOptions: HighchartsOptions = HighchartsOptions(
+    chart = ChartOptions(type = "line"),
+    title = TitleOptions("", ""),
+    xAxis = XAxisOptions(categories = listOf("1 an", "5 ans", "10 ans", "20 ans")),
+    yAxis = YAxisOptions(
+        min = 0,
+        title = TitleOptions("", ""),
+        labels = LabelsOptions(enabled = true, format = "{value} €")
+    ),
+    series = listOf(
+        series(name = "Actuel", color = currentColor, rawData = listOf(0, 0, 0, 0)),
+        series(name = "Avec la PAC", color = optimizedColor, rawData = listOf(0, 0, 0, 0))
+    )
+)
 
 data class ProjectionData(val currentCost: Double = 0.0, val optimizedCost: Double = 0.0) {
     private fun getOneFiveTenTwenty(cost: Double): List<Double> =
@@ -72,11 +52,18 @@ data class ProjectionData(val currentCost: Double = 0.0, val optimizedCost: Doub
     val optimizedOneFiveTenTwenty: List<Double> = getOneFiveTenTwenty(optimizedCost)
 }
 
+private fun computeSeries(projectionData: ProjectionData): List<SeriesOptions> {
+    return listOf(
+        series(name = "Actuel", color = currentColor, rawData = projectionData.currentOneFiveTenTwenty),
+        series(name = "Avec la PAC", color = optimizedColor, rawData = projectionData.optimizedOneFiveTenTwenty)
+    )
+}
+
 private fun Tr.moneyCell(value: Double, bold: Boolean = false) =
     td("$value €", className = "text-bold".takeIf { bold })
 
 fun Container.costsProjection(appController: AppController) {
-    val chartConfigurationStore = ObservableValue(baseBarChartConfiguration)
+    val chartOptionsStore = ObservableValue(defaultChartOptions)
     val projectionDataStore = ObservableValue(ProjectionData())
 
     val updateProjection = {
@@ -89,8 +76,8 @@ fun Container.costsProjection(appController: AppController) {
 
         projectionDataStore.update { projectionData }
 
-        chartConfigurationStore.update {
-            baseBarChartConfiguration.copy(dataSets = buildTimeSeriesDataSets(projectionData))
+        chartOptionsStore.update {
+            defaultChartOptions.copy(series = computeSeries(projectionData))
         }
     }
 
@@ -100,11 +87,11 @@ fun Container.costsProjection(appController: AppController) {
         headerContent = { h3("Graphes des actions sur 10 et 20 ans") },
         bodyContent = {
             form {
-                chart(chartConfigurationStore.getState())
-                    .bind(chartConfigurationStore) {
-                        configuration = it
-                        update(UpdateMode.RESIZE)
-                    }
+                highchartsDiv("projectionsChart", options = chartOptionsStore.value) {
+
+                }.bind(chartOptionsStore) {
+                    options = it
+                }
 
                 br()
                 div(className = "divider col-12")

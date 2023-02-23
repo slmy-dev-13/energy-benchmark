@@ -48,7 +48,8 @@ private fun defaultPieOptions(name: String, title: String) = HighchartsOptions(
                 distance = -75,
                 filter = Filter("percentage", ">", 0),
                 style = TextStyleOptions(
-                    fontSize = "16px"
+                    fontSize = "16px",
+                    textOutline = "none"
                 )
             )
         )

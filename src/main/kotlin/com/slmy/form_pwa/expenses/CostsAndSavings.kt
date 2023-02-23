@@ -6,7 +6,6 @@ import com.slmy.form_pwa.data.ConsumptionCostsForm
 import com.slmy.form_pwa.data.SystemType
 import com.slmy.form_pwa.js.*
 import com.slmy.form_pwa.ui.card
-import com.slmy.form_pwa.ui.choiceButton
 import com.slmy.form_pwa.update
 import io.kvision.core.Container
 import io.kvision.form.spinner.simpleSpinner
@@ -20,11 +19,6 @@ private const val waterColor = "#09c"
 private const val heatColor = "#C66"
 private const val diverseColor = "#ed0"
 private const val savingsColor = "#9d5"
-
-enum class Energy(val label: String) {
-    Gaz("Gaz"),
-    Fioul("Fioul");
-}
 
 data class EnergyFactors(val heat: Double, val water: Double, val diverse: Double)
 
@@ -45,7 +39,7 @@ private fun defaultChartOptions() = HighchartsOptions(
     yAxis = YAxisOptions(
         min = 0,
         title = TitleOptions("", ""),
-        stackLabels = StackLabelsOptions(
+        stackLabels = LabelsOptions(
             enabled = true,
             format = "{total} €",
             style = TextStyleOptions(
@@ -54,7 +48,7 @@ private fun defaultChartOptions() = HighchartsOptions(
                 textOutline = "none"
             )
         ),
-        labels = StackLabelsOptions(
+        labels = LabelsOptions(
             enabled = true,
             format = "{value} €",
         )
@@ -62,11 +56,12 @@ private fun defaultChartOptions() = HighchartsOptions(
     plotOptions = PlotOptions(
         column = ColumnPlotOptions(
             stacking = "normal",
+            borderRadius = 8,
             dataLabels = DataLabelsOptions(
                 enabled = true,
                 format = "{point.y} €",
                 filter = Filter("y", ">", 0),
-                style = TextStyleOptions(fontSize = "14px")
+                style = TextStyleOptions(fontSize = "14px", textOutline = "none")
             )
         )
     ),
@@ -122,8 +117,6 @@ fun Container.costsAndSavings(appController: AppController) {
         appController.updateEnergyCost(it.electricityCost, it.otherCost)
     }
 
-    val energyStore = appController.stateObservable.sub { it.energy }
-
     val chartOptionsStore = appController.stateObservable.sub { state ->
         defaultChartOptions().copy(series = computeSeries(formObservable.value, state.systemType))
     }
@@ -132,32 +125,18 @@ fun Container.costsAndSavings(appController: AppController) {
         headerContent = { h3("Coûts et économies réalisables") },
         bodyContent = {
             div(className = "columns column") {
-                hPanel(spacing = 16, className = "col-12 mb-2").bind(energyStore) { currentEnergy ->
-                    Energy.values().forEach { energy ->
-                        choiceButton(
-                            label = energy.label,
-                            icon = energy.icon,
-                            isActive = energy == currentEnergy,
-                            extraClasses = "col-6",
-                            onClick = { appController.updateEnergy(energy) }
-                        )
-                    }
-                }
-
                 val state = appController.stateObservable.value
 
-                simpleSpinner(value = state.energyCost.other) {
+                simpleSpinner(value = state.energyCost.other, label = "Conso annuelle de GAZ ou Fioul en €") {
                     addCssClass("col-6")
                     addCssClass("col-xs-12")
 
                     subscribe { otherCost ->
                         formObservable.update { it.copy(otherCost = otherCost?.toDouble() ?: 0.0) }
                     }
-                }.bind(energyStore) {
-                    label = "${it.label} en €/an"
                 }
 
-                simpleSpinner(value = state.energyCost.electricity, label = "Électricité en €/an") {
+                simpleSpinner(value = state.energyCost.electricity, label = "Conso annuelle d’ Electricité en €") {
                     addCssClass("col-6")
                     addCssClass("col-xs-12")
 
@@ -207,9 +186,3 @@ fun Container.costsAndSavings(appController: AppController) {
         }
     )
 }
-
-val Energy.icon: String
-    get() = when (this) {
-        Energy.Gaz -> "icons/gaz.png"
-        Energy.Fioul -> "icons/fioul.png"
-    }

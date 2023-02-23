@@ -4,7 +4,6 @@ import com.slmy.form_pwa.data.EnergyCost
 import com.slmy.form_pwa.data.HeatPumpState
 import com.slmy.form_pwa.data.SystemType
 import com.slmy.form_pwa.data.UsageCost
-import com.slmy.form_pwa.expenses.Energy
 import io.kvision.state.ObservableValue
 import io.kvision.state.sub
 
@@ -44,10 +43,6 @@ class AppController {
     fun updateEnergyCost(electricity: Double, other: Double) {
         stateObservable.update { it.copy(energyCost = EnergyCost(electricity, other)) }
         processUsageCost()
-    }
-
-    fun updateEnergy(energy: Energy) {
-        stateObservable.update { it.copy(energy = energy) }
     }
 
     fun updateIsolationIndex(isolationIndex: Int) {
