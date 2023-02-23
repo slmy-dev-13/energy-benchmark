@@ -112,66 +112,70 @@ fun Container.timeLine() {
         }
     }
 
-    vPanel(spacing = 16) {
-        h2("Frise chronologique")
-
-        simpleSelect(
-            options = Month.values().map { it.number.toString() to it.label },
-            value = observableMonthYear.value.month.number.toString(),
-            label = "Mois de signature du bon de commande"
-        ).subscribe { stringNumber ->
-            stringNumber?.toInt()?.let { number ->
-                observableMonthYear.update {
-                    it.copy(month = Month.withNumber(number))
+    card(
+        headerContent = {
+            h3("Frise chronologique")
+        },
+        bodyContent = {
+            label(content = "Mois de signature du bon de commande", className = "form-label")
+            simpleSelect(
+                options = Month.values().map { it.number.toString() to it.label },
+                value = observableMonthYear.value.month.number.toString(),
+            ).subscribe { stringNumber ->
+                stringNumber?.toInt()?.let { number ->
+                    observableMonthYear.update {
+                        it.copy(month = Month.withNumber(number))
+                    }
                 }
             }
-        }
 
-        div(className = "timeline").bind(observableMonthYear) { monthYear ->
-            buildTimeLineItems(monthYear.month.number, monthYear.year).forEach { item ->
-                val detachedClass = "detached".takeIf { item.isDetached } ?: ""
+            div(className = "timeline").bind(observableMonthYear) { monthYear ->
+                buildTimeLineItems(monthYear.month.number, monthYear.year).forEach { item ->
+                    val detachedClass = "detached".takeIf { item.isDetached } ?: ""
 
-                div(className = "timeline-item $detachedClass") {
-                    if (!item.isDetached) {
-                        div(className = "date", content = item.date)
-                    }
+                    div(className = "timeline-item $detachedClass") {
+                        if (!item.isDetached) {
+                            div(className = "date", content = item.date)
+                        }
 
-                    div(className = "content") {
-                        card(
-                            bodyContent = {
-                                h4(content = item.title, className = "d-inline-block")
+                        div(className = "content") {
+                            card(
+                                bodyContent = {
+                                    h4(content = item.title, className = "d-inline-block")
 
-                                if (item.showFreeChip) {
-                                    span("Gratuit", className = "bg-success ml-2 text-small text-uppercase p-1 va-tb")
-                                }
+                                    if (item.showFreeChip) {
+                                        span("Gratuit", className = "bg-success ml-2 text-small text-uppercase p-1 va-tb")
+                                    }
 
-                                p(content = item.content ?: "", rich = true)
+                                    p(content = item.content ?: "", rich = true)
 
-                                if (item.isPaiement) {
-                                    form {
-                                        simpleSpinner(value = finalCostObservable.value.first, label = "Sortie en €").subscribe {
-                                            it?.let { nnNumber ->
-                                                finalCostObservable.update { pair ->
-                                                    pair.copy(first = nnNumber.toDouble())
+                                    if (item.isPaiement) {
+                                        form {
+                                            simpleSpinner(value = finalCostObservable.value.first, label = "Sortie en €").subscribe {
+                                                it?.let { nnNumber ->
+                                                    finalCostObservable.update { pair ->
+                                                        pair.copy(first = nnNumber.toDouble())
+                                                    }
                                                 }
                                             }
-                                        }
 
-                                        simpleSpinner(value = finalCostObservable.value.second, label = "Entrée en €").subscribe {
-                                            it?.let { nnNumber ->
-                                                finalCostObservable.update { pair ->
-                                                    pair.copy(second = nnNumber.toDouble())
+                                            simpleSpinner(value = finalCostObservable.value.second, label = "Entrée en €").subscribe {
+                                                it?.let { nnNumber ->
+                                                    finalCostObservable.update { pair ->
+                                                        pair.copy(second = nnNumber.toDouble())
+                                                    }
                                                 }
                                             }
                                         }
                                     }
-                                }
-                            },
-                            extraContent = paiementForm.takeIf { item.isPaiement }
-                        )
+                                },
+                                extraContent = paiementForm.takeIf { item.isPaiement }
+                            )
+                        }
                     }
                 }
             }
+
         }
-    }
+    )
 }
