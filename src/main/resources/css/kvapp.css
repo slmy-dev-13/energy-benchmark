@@ -203,3 +203,18 @@ button {
     line-height: 22px;
     color: #000000;
 }
+
+
+tr.gain-line {
+    background: #83DE21;
+    color: black;
+    font-weight: bold;
+}
+
+tr.current-line {
+    color: #c66;
+}
+
+tr.future-line {
+    color: #69b21a;
+}

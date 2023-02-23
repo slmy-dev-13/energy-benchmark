@@ -25,11 +25,14 @@ private fun series(name: String, color: String, rawData: List<Number>): SeriesOp
 private val defaultChartOptions: HighchartsOptions = HighchartsOptions(
     chart = ChartOptions(type = "line"),
     title = TitleOptions("", ""),
-    xAxis = XAxisOptions(categories = listOf("1 an", "5 ans", "10 ans", "20 ans")),
+    xAxis = XAxisOptions(
+        categories = listOf("1 an", "5 ans", "10 ans", "20 ans"),
+        labels = LabelsOptions(enabled = true, style = TextStyleOptions(fontWeight = "bold"))
+    ),
     yAxis = YAxisOptions(
         min = 0,
         title = TitleOptions("", ""),
-        labels = LabelsOptions(enabled = true, format = "{value} €")
+        labels = LabelsOptions(enabled = true, format = "{value} €", style = TextStyleOptions(fontWeight = "bold"))
     ),
     series = listOf(
         series(name = "Actuel", color = currentColor, rawData = listOf(0, 0, 0, 0)),
@@ -59,8 +62,8 @@ private fun computeSeries(projectionData: ProjectionData): List<SeriesOptions> {
     )
 }
 
-private fun Tr.moneyCell(value: Double, bold: Boolean = false) =
-    td("$value €", className = "text-bold".takeIf { bold })
+private fun Tr.moneyCell(value: Double, bold: Boolean = false, extraClasses: String = "") =
+    td("$value €", className = extraClasses + " " + ("text-bold".takeIf { bold } ?: ""))
 
 fun Container.costsProjection(appController: AppController) {
     val chartOptionsStore = ObservableValue(defaultChartOptions)
@@ -84,7 +87,7 @@ fun Container.costsProjection(appController: AppController) {
     appController.stateObservable.subscribe { updateProjection() }
 
     card(
-        headerContent = { h3("Graphes des actions sur 10 et 20 ans") },
+        headerContent = { h3("Actions à 20 ans") },
         bodyContent = {
             form {
                 highchartsDiv("projectionsChart", options = chartOptionsStore.value) {
@@ -95,39 +98,39 @@ fun Container.costsProjection(appController: AppController) {
 
                 br()
                 div(className = "divider col-12")
-                br()
+            }
+        },
+        footerContent = {
+            table(className = "table table-striped table-bordered text-center")
+                .bind(projectionDataStore) { projectionData ->
+                    tr {
+                        th("")
+                        th("1 an")
+                        th("10 ans")
+                        th("20 ans")
+                    }
+                    tr(className = "current-line") {
+                        td("Actuel", className = "text-bold")
 
-                table(className = "table table-striped table-bordered")
-                    .bind(projectionDataStore) { projectionData ->
-                        tr {
-                            th("")
-                            th("1 an")
-                            th("10 ans")
-                            th("20 ans")
-                        }
-                        tr {
-                            td("Actuel")
-
-                            projectionData.currentOneTenTwenty.forEach {
-                                moneyCell(ceil(it))
-                            }
-                        }
-                        tr {
-                            td("Futur")
-
-                            projectionData.optimizedOneTenTwenty.forEach {
-                                moneyCell(ceil(it))
-                            }
-                        }
-                        tr {
-                            td("Gains")
-
-                            projectionData.deltaOneTenTwenty.forEach {
-                                moneyCell(ceil(it), bold = true)
-                            }
+                        projectionData.currentOneTenTwenty.forEach {
+                            moneyCell(ceil(it))
                         }
                     }
-            }
+                    tr(className = "future-line") {
+                        td("Futur", className = "text-bold")
+
+                        projectionData.optimizedOneTenTwenty.forEach {
+                            moneyCell(ceil(it))
+                        }
+                    }
+                    tr(className = "gain-line") {
+                        td("Gains", className = "text-bold")
+
+                        projectionData.deltaOneTenTwenty.forEach {
+                            moneyCell(ceil(it), bold = true, extraClasses = "text-large")
+                        }
+                    }
+                }
         }
     )
 }
