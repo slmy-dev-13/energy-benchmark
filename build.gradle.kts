@@ -9,7 +9,7 @@ plugins {
     id("io.kvision") version kvisionVersion
 }
 
-version = "1.0.9"
+version = "1.0.10"
 group = "com.jea"
 
 repositories {
@@ -50,7 +50,6 @@ kotlin {
     sourceSets["main"].dependencies {
         implementation("io.kvision:kvision:$kvisionVersion")
         implementation("io.kvision:kvision-state:$kvisionVersion")
-        implementation("io.kvision:kvision-chart:$kvisionVersion")
     }
     sourceSets["test"].dependencies {
         implementation(kotlin("test-js"))

@@ -36,7 +36,7 @@ class App : Application() {
             header(className = "navbar bg-dark") {
                 section(className = "navbar-section")
                 section(className = "navbar-center") {
-                    link("", url = "/") {
+                    link("", url = "https://slmy-dev-13.github.io/energy-benchmark/") {
                         image("images/jea-logo.png")
                     }
                 }

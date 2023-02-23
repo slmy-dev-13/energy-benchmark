@@ -6,6 +6,6 @@ inline fun <T> ObservableValue<T>.update(block: (T) -> T) {
     value = block(value)
 }
 
-inline fun <T> ObservableValue<T>.notify() {
+fun <T> ObservableValue<T>.notify() {
     value = value
 }
