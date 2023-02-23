@@ -25,17 +25,23 @@ data class EnergyFactors(val heat: Double, val water: Double, val diverse: Doubl
 private val toggleButton: Container.(Boolean) -> Unit = { enable ->
     if (enable) {
         addCssClass("btn-success")
-        removeCssClass("btn-error")
+        removeCssClass("btn-neutral")
     } else {
         removeCssClass("btn-success")
-        addCssClass("btn-error")
+        addCssClass("btn-neutral")
     }
 }
 
 private fun defaultChartOptions() = HighchartsOptions(
     chart = ChartOptions("column"),
     title = TitleOptions(text = "", align = "center"),
-    xAxis = XAxisOptions(categories = listOf("Actuel", "Futur", "Économies")),
+    xAxis = XAxisOptions(
+        categories = listOf("Actuel", "Futur", "Économies"),
+        labels = LabelsOptions(
+            enabled = true,
+            style = TextStyleOptions(fontWeight = "bold", fontSize = "14px")
+        )
+    ),
     yAxis = YAxisOptions(
         min = 0,
         title = TitleOptions("", ""),
@@ -51,6 +57,7 @@ private fun defaultChartOptions() = HighchartsOptions(
         labels = LabelsOptions(
             enabled = true,
             format = "{value} €",
+            style = TextStyleOptions(fontWeight = "bold", fontSize = "14px")
         )
     ),
     plotOptions = PlotOptions(
@@ -100,7 +107,6 @@ private fun computeSeries(form: ConsumptionCostsForm, systemType: SystemType): L
 
     val optimizedHeatCost = if (form.withHeatPump) heatCost * .3 else heatCost
     val optimizedWaterCost = if (form.withBalloonTD) waterCost * .3 else waterCost
-
 
     return listOf(
         columnSeries("Économies", listOf(0.0, 0.0, (heatCost + waterCost) - (optimizedHeatCost + optimizedWaterCost)), savingsColor),

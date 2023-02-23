@@ -76,7 +76,7 @@ fun Container.isolation(appController: AppController) {
             }
         },
         extraContent = {
-            div(className = "card-extra bg-gray p-2 text-right mt-2").bind(isolationIndexStore) { isolationIndex ->
+            div(className = "card-extra text-right mt-2").bind(isolationIndexStore) { isolationIndex ->
                 span("Indice d'isolation")
                 br()
                 span("$isolationIndex", className = "h1")

@@ -27,6 +27,9 @@ val SystemType.icon: String
 
 private fun defaultPieOptions(name: String, title: String) = HighchartsOptions(
     title = TitleOptions(title, "center"),
+    legend = LegendOptions(
+
+    ),
     series = listOf(
         SeriesOptions(
             type = "pie",

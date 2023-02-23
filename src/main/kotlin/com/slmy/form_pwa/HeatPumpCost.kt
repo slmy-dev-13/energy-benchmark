@@ -76,7 +76,7 @@ fun Container.heatPumpCost(appController: AppController) {
             br()
         },
         extraContent = {
-            div(className = "card-extra bg-gray p-2 text-right mt-2").bind(heatPumpCostObservable) { heatPumpCost ->
+            div(className = "card-extra text-right mt-2").bind(heatPumpCostObservable) { heatPumpCost ->
                 span("Coût calculé")
                 br()
                 div {

@@ -1,3 +1,15 @@
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #ffffff;
+}
+
 .mast {
     max-width: 980px;
 }
@@ -13,14 +25,39 @@ svg > text.highcharts-credits {
     border-radius: 16px !important;
 }
 
+.card-header h3 {
+    font-weight: bold;
+}
+
 .card-extra {
+    background: #83DE21;
     border-radius: 0 0 16px 16px !important;
+    color: black;
+    padding: 16px;
+}
+
+.btn.btn-neutral {
+    background: transparent;
+    border-color: #3b4351;
+    color: #3b4351;
 }
 
 select,
 input,
 button {
     border-radius: 10px !important;
+}
+
+.form-group {
+    text-align: right;
+}
+
+.form-group input[type=number] {
+    font-weight: bold;
+    font-size: 40px;
+    max-width: 300px;
+    text-align: right;
+    width: 100%;
 }
 
 .va-tb {
@@ -79,19 +116,6 @@ button {
 
 .btn-choice.active > label {
     font-weight: bold;
-}
-
-
-*,
-*::before,
-*::after {
-    box-sizing: border-box;
-}
-
-body {
-    margin: 0;
-    font-family: Arial, Helvetica, sans-serif;
-    background: #ffffff;
 }
 
 .timeline {

@@ -100,14 +100,14 @@ fun Container.timeLine() {
     val finalCostObservable = ObservableValue(Pair(0.0, 0.0))
 
     val paiementForm: Container.() -> Unit = {
-        div(className = "card-extra bg-gray p-2 text-right mt-2").bind(finalCostObservable) { pair ->
+        div(className = "card-extra text-right mt-2").bind(finalCostObservable) { pair ->
 
             val total = pair.first - pair.second
 
             span("Coût final")
             br()
             div {
-                span(content ="${total.roundToInt()} €", className = "h1")
+                span(content = "${total.roundToInt()} €", className = "h1")
             }
         }
     }

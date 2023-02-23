@@ -157,10 +157,12 @@ data class Filter(
 
 data class XAxisOptions(
     var categories: List<String>,
+    var labels: LabelsOptions? = null
 ) {
     fun toJs(): dynamic {
         return obj {
             this.categories = categories.toTypedArray()
+            labels?.let { this.labels = it.toJs() }
         }
     }
 }

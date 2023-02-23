@@ -58,7 +58,7 @@ fun Container.neededPower(appController: AppController) {
             }
         },
         extraContent = {
-            div(className = "card-extra bg-gray p-2 text-right mt-2").bind(neededPowerObservable) { neededPower ->
+            div(className = "card-extra text-right mt-2").bind(neededPowerObservable) { neededPower ->
                 span("Puissance préconisée")
                 br()
                 span("$neededPower KWh", className = "h1")
