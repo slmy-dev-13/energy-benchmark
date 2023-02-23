@@ -1,9 +1,8 @@
 package com.slmy.form_pwa.expenses
 
-import com.slmy.form_pwa.AppController
+import com.slmy.form_pwa.SolarController
 import com.slmy.form_pwa.chart.highchartsDiv
-import com.slmy.form_pwa.data.ConsumptionCostsForm
-import com.slmy.form_pwa.data.SystemType
+import com.slmy.form_pwa.data.SolarConsumptionCostsForm
 import com.slmy.form_pwa.js.*
 import com.slmy.form_pwa.ui.card
 import com.slmy.form_pwa.update
@@ -64,7 +63,7 @@ private fun defaultChartOptions() = HighchartsOptions(
             borderRadius = 8,
             dataLabels = DataLabelsOptions(
                 enabled = true,
-                format = "{point.y} €",
+                format = "{point.y:.1f} €",
                 filter = Filter("y", ">", 0),
                 style = TextStyleOptions(fontSize = "14px", textOutline = "none")
             )
@@ -87,63 +86,43 @@ private fun columnSeries(name: String, rawData: List<Double>, color: String): Se
     )
 }
 
-private fun computeSeries(form: ConsumptionCostsForm, systemType: SystemType): List<SeriesOptions> {
-    val factors = if (systemType == SystemType.Simple) {
-        EnergyFactors(1.0, 0.4, 0.6)
-    } else {
-        EnergyFactors(0.7, 0.3, 1.0)
-    }
+private fun computeSeries(form: SolarConsumptionCostsForm): List<SeriesOptions> {
+    val factors = EnergyFactors(0.6, 0.3, 0.1)
 
-    val heatCost = form.otherCost * factors.heat
+    val heatCost = form.electricityCost * factors.heat
     val diverseCost = form.electricityCost * factors.diverse
+    val waterCost = form.electricityCost - (heatCost + diverseCost)
 
-    val waterCost = if (systemType == SystemType.Simple) {
-        form.electricityCost - diverseCost
-    } else {
-        form.otherCost - heatCost
-    }
-
-    val optimizedHeatCost = if (form.withHeatPump) heatCost * .3 else heatCost
+    val optimizedHeatCost = if (form.withPanels) heatCost * .3 else heatCost
+    val optimizedDiverseCost = if (form.withPanels) diverseCost * .3 else diverseCost
     val optimizedWaterCost = if (form.withBalloonTD) waterCost * .3 else waterCost
 
     return listOf(
-        columnSeries("Économies", listOf(0.0, 0.0, (heatCost + waterCost) - (optimizedHeatCost + optimizedWaterCost)), savingsColor),
-        columnSeries("Divers", listOf(diverseCost, diverseCost, 0.0), diverseColor),
+        columnSeries("Économies", listOf(0.0, 0.0, (heatCost + waterCost + diverseCost) - (optimizedHeatCost + optimizedWaterCost + optimizedDiverseCost)), savingsColor),
+        columnSeries("Divers", listOf(diverseCost, optimizedDiverseCost, 0.0), diverseColor),
         columnSeries("Eaux chaudes", listOf(waterCost, optimizedWaterCost, 0.0), waterColor),
         columnSeries("Chauffage", listOf(heatCost, optimizedHeatCost, 0.0), heatColor),
     )
 }
 
-fun Container.costsAndSavings(appController: AppController) {
-    val formObservable = ObservableValue(ConsumptionCostsForm())
+fun Container.solarCostsAndSavings(controller: SolarController) {
+    val formObservable = ObservableValue(SolarConsumptionCostsForm())
 
     formObservable.subscribe {
-        appController.updateEnergyCost(it.electricityCost, it.otherCost)
+        controller.updateEnergyCost(it.electricityCost)
     }
 
-    val chartOptionsStore = appController.stateObservable.sub { state ->
-        defaultChartOptions().copy(series = computeSeries(formObservable.value, state.systemType))
+    val chartOptionsStore = formObservable.sub { form ->
+        defaultChartOptions().copy(series = computeSeries(form))
     }
 
     card(
         headerContent = { h3("Coûts et économies réalisables") },
         bodyContent = {
-            div(className = "columns column") {
-                val state = appController.stateObservable.value
-
-                simpleSpinner(value = state.energyCost.other, label = "Conso annuelle de GAZ ou Fioul en €") {
-                    addCssClass("col-6")
-                    addCssClass("col-xs-12")
-
-                    subscribe { otherCost ->
-                        formObservable.update { it.copy(otherCost = otherCost?.toDouble() ?: 0.0) }
-                    }
-                }
+            div(className = "column") {
+                val state = controller.stateObservable.value
 
                 simpleSpinner(value = state.energyCost.electricity, label = "Conso annuelle d’ Electricité en €") {
-                    addCssClass("col-6")
-                    addCssClass("col-xs-12")
-
                     subscribe { electricityCost ->
                         formObservable.update { it.copy(electricityCost = electricityCost?.toDouble() ?: 0.0) }
                     }
@@ -166,13 +145,13 @@ fun Container.costsAndSavings(appController: AppController) {
 
             hPanel(spacing = 16, className = "col-12 mt-2 flex-centered") {
                 button(
-                    text = "Pompe à chaleur (air / eau)",
+                    text = "Panneau Photovoltaïque",
                     style = ButtonStyle.LIGHT,
                     className = "btn-lg"
                 ).bind(formObservable) {
-                    toggleButton(it.withHeatPump)
+                    toggleButton(it.withPanels)
                 }.onClick {
-                    formObservable.update { it.copy(withHeatPump = !it.withHeatPump) }
+                    formObservable.update { it.copy(withPanels = !it.withPanels) }
                 }
 
                 button(

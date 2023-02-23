@@ -17,7 +17,6 @@ import io.kvision.state.sub
 private const val waterColor = "#09c"
 private const val heatColor = "#C66"
 private const val diverseColor = "#ed0"
-private const val savingsColor = "#9d5"
 
 val SystemType.icon: String
     get() = when (this) {
@@ -27,9 +26,6 @@ val SystemType.icon: String
 
 private fun defaultPieOptions(name: String, title: String) = HighchartsOptions(
     title = TitleOptions(title, "center"),
-    legend = LegendOptions(
-
-    ),
     series = listOf(
         SeriesOptions(
             type = "pie",
@@ -54,7 +50,8 @@ private fun defaultPieOptions(name: String, title: String) = HighchartsOptions(
                     fontSize = "16px",
                     textOutline = "none"
                 )
-            )
+            ),
+            showInLegend = true
         )
     )
 )

@@ -11,6 +11,13 @@ data class ConsumptionCostsForm(
 )
 
 @Serializable
+data class SolarConsumptionCostsForm(
+    val electricityCost: Double = 1000.0,
+    val withPanels: Boolean = false,
+    val withBalloonTD: Boolean = false,
+)
+
+@Serializable
 data class IsolationDataForm(
     val houseBuiltAfter2012: Boolean = false,
     val doubleWindow: Boolean = false,

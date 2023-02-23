@@ -98,13 +98,15 @@ data class PlotOptions(
 data class PiePlotOptions(
     var allowPointSelect: Boolean,
     var cursor: String,
-    var dataLabels: DataLabelsOptions
+    var dataLabels: DataLabelsOptions,
+    var showInLegend: Boolean? = null
 ) {
     fun toJs(): dynamic {
         return obj {
             this.allowPointSelect = allowPointSelect
             this.cursor = cursor
             this.dataLabels = dataLabels.toJs()
+            showInLegend?.let { this.showInLegend = it }
         }
     }
 }
