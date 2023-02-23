@@ -2,6 +2,10 @@
     max-width: 980px;
 }
 
+svg > text.highcharts-credits {
+    display: none !important;
+}
+
 .card {
     border: 0;
     box-shadow: 0 0.25rem 1rem rgb(48 55 66 / 15%);
