@@ -1,6 +1,7 @@
 package com.slmy.form_pwa.solar
 
 import com.slmy.form_pwa.SolarController
+import com.slmy.form_pwa.data.FranceDepartment
 import com.slmy.form_pwa.data.Orientation
 import com.slmy.form_pwa.data.SolarOptimalPowerForm
 import com.slmy.form_pwa.ui.card
@@ -15,6 +16,11 @@ import io.kvision.state.bind
 import io.kvision.state.sub
 
 fun Container.solarOptimalPower(controller: SolarController) {
+
+    val departmentOptions = FranceDepartment.values().map {
+        it.id to "${it.id} - ${it.fullName}"
+    }
+
     val formObservable = ObservableValue(SolarOptimalPowerForm())
 
     formObservable.sub {
@@ -47,27 +53,29 @@ fun Container.solarOptimalPower(controller: SolarController) {
 
                     tr {
                         td {
-                            simpleSpinner(value = formObservable.value.sunHours, label = "Heures d'ensoleillement annuelles") {
-                                addCssClass("text-center")
-                                bind(SolarOptimalPowerForm::sunHours)
-                                subscribe(subscriber)
-                            }
-                        }
-
-                        td {
                             simpleSelect(
-                                options = Orientation.values().map { it.name to it.label },
-                                value = formObservable.value.orientation.name,
-                                label = "Orientation du toit"
+                                options = departmentOptions,
+                                value = departmentOptions.first().first,
+                                label = "Département"
                             ) {
-                                subscribe { orientationName ->
-                                    if (orientationName != null) {
-                                        formObservable.update { it.copy(orientation = Orientation.valueOf(orientationName)) }
+                                subscribe { departmentId ->
+                                    val department = departmentId?.let { FranceDepartment.valueById(it) }
+
+                                    console.log(department)
+
+                                    if (department != null) {
+                                        formObservable.update { it.copy(sunHours = department.sunHours) }
                                     }
                                 }
                             }
+
                         }
 
+                        td {
+                            div().bind(formObservable) {
+                                content = it.sunHours.toString()
+                            }
+                        }
                     }
                 }
                 setData(formObservable.value)

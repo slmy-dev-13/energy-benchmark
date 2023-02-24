@@ -1,8 +1,7 @@
 package com.slmy.form_pwa.ui
 
-import io.kvision.core.Color
-
-val waterColor = Color("#09c")
-val heatColor = Color("#C66")
-val diverseColor = Color("#ed0")
-val savingsColor = Color("#9d5")
+val jeaBlueColor = "#1798AA"
+val jeaGreenColor = "#82DD24"
+val jeaGreenLightColor = "#b7ff5e"
+val jeaGreenDarkColor = "#4bab00"
+val jeaOrangeColor = "#F6A531"

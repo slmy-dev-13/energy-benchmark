@@ -4,14 +4,28 @@
     box-sizing: border-box;
 }
 
-body {
+html, body {
+    height: 100%;
     margin: 0;
+}
+
+body {
     font-family: Arial, Helvetica, sans-serif;
-    background: #f8f8f8 !important;
+    background: rgb(23, 152, 170);
+    background: linear-gradient(0deg, rgba(23, 152, 170, 1) 0%, rgba(130, 221, 36, 1) 35%, rgba(246, 165, 49, 1) 100%) fixed;
 }
 
 .mast {
     max-width: 980px;
+}
+
+.bg-green-light {
+    background: #b7ff5e;
+    color: black;
+}
+
+.text-underline {
+    text-decoration: underline;
 }
 
 svg > text.highcharts-credits {
@@ -30,7 +44,7 @@ svg > text.highcharts-credits {
 }
 
 .card-extra {
-    background: #83DE21;
+    background: #b7ff5e;
     border-radius: 0 0 16px 16px !important;
     color: black;
     padding: 16px;
@@ -78,11 +92,13 @@ button {
 }
 
 .navbar {
+    background: white;
+    box-shadow: 0 0.25rem 1rem rgb(48 55 66 / 15%);
     margin-bottom: 32px;
 }
 
-.navbar-center img {
-    height: 120px;
+.navbar-section img {
+    height: 100px;
     padding: 16px 0;
 }
 
@@ -220,5 +236,5 @@ tr.current-line {
 }
 
 tr.future-line {
-    color: #69b21a;
+    color: #4bab00;
 }

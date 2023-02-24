@@ -26,4 +26,8 @@ class SolarController {
     fun updateCurrentConsumption(consumption: Int) {
         stateObservable.update { it.copy(currentConsumption = consumption) }
     }
+
+    fun reset() {
+        stateObservable.update { SolarPanelState() }
+    }
 }

@@ -125,7 +125,7 @@ fun Container.costsProjection(appController: AppController) {
                             moneyCell(ceil(it))
                         }
                     }
-                    tr(className = "gain-line") {
+                    tr(className = "bg-green-light") {
                         td("Gains", className = "text-bold")
 
                         projectionData.deltaOneTenTwenty.forEach {

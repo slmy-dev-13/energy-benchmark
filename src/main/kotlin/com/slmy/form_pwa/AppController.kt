@@ -56,4 +56,8 @@ class AppController {
     fun updateHeatPumpCost(heatPumpCost: Double) {
         stateObservable.update { it.copy(heatPumpCost = heatPumpCost) }
     }
+
+    fun reset() {
+        stateObservable.update { HeatPumpState() }
+    }
 }

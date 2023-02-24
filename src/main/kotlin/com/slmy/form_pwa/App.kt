@@ -33,14 +33,23 @@ class App : Application() {
 
     override fun start() {
         root("kvapp") {
-            header(className = "navbar bg-dark") {
-                section(className = "navbar-section")
-                section(className = "navbar-center") {
-                    link("", url = "https://slmy-dev-13.github.io/energy-benchmark/") {
-                        image("images/jea-logo.png")
+            header(className = "navbar") {
+                section(className = "navbar-section") {
+                    image("images/jea-logo-black.png").onClick {
+                        appController.reset()
+                        solarController.reset()
+                        pageObservable.update { Page.Choice }
                     }
                 }
-                section(className = "navbar-section")
+                section(className = "navbar-center")
+                section(className = "navbar-section").bind(pageObservable) {
+                    navPageButton("Pompe à Chaleur", isSelected = it == Page.HeatPump) {
+                        pageObservable.update { Page.HeatPump }
+                    }
+                    navPageButton("Panneau Photovoltaïque", isSelected = it == Page.Solar) {
+                        pageObservable.update { Page.Solar }
+                    }
+                }
             }
 
             vPanel(spacing = 24, className = "column col-mx-auto col-8 col-sm-12 col-md-10 col-lg-10 col-xl-10 mast my-2")
@@ -85,6 +94,19 @@ class App : Application() {
         pageButton("Panneau Photovoltaïque") {
             pageObservable.update { Page.Solar }
         }
+    }
+
+    private fun Container.navPageButton(text: String, isSelected: Boolean, onClick: () -> Unit) {
+
+        val extraClasses = if (isSelected) {
+            "text-underline text-bold"
+        } else {
+            ""
+        }
+
+        span(content = text, className = "p-2 mr-2 $extraClasses") {
+            cursor = Cursor.POINTER
+        }.onClick { onClick() }
     }
 }
 
