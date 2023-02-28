@@ -2,10 +2,10 @@ package com.slmy.form_pwa.solar
 
 import com.slmy.form_pwa.SolarController
 import com.slmy.form_pwa.chart.highchartsDiv
-import com.slmy.form_pwa.data.SolarConsumptionCostsForm
 import com.slmy.form_pwa.data.EnergyFactors
+import com.slmy.form_pwa.data.SolarConsumptionCostsForm
 import com.slmy.form_pwa.js.*
-import com.slmy.form_pwa.ui.card
+import com.slmy.form_pwa.ui.*
 import com.slmy.form_pwa.update
 import io.kvision.core.Container
 import io.kvision.form.spinner.simpleSpinner
@@ -14,11 +14,6 @@ import io.kvision.panel.hPanel
 import io.kvision.state.ObservableValue
 import io.kvision.state.bind
 import io.kvision.state.sub
-
-private const val waterColor = "#09c"
-private const val heatColor = "#C66"
-private const val diverseColor = "#ed0"
-private const val savingsColor = "#9d5"
 
 private val toggleButton: Container.(Boolean) -> Unit = { enable ->
     if (enable) {
@@ -30,7 +25,7 @@ private val toggleButton: Container.(Boolean) -> Unit = { enable ->
     }
 }
 
-private fun defaultChartOptions() = HighchartsOptions(
+private val defaultChartOptions = HighchartsOptions(
     chart = ChartOptions("column"),
     title = TitleOptions(text = "", align = "center"),
     xAxis = XAxisOptions(
@@ -114,7 +109,7 @@ fun Container.solarCostsAndSavings(controller: SolarController) {
     }
 
     val chartOptionsStore = formObservable.sub { form ->
-        defaultChartOptions().copy(series = computeSeries(form))
+        defaultChartOptions.copy(series = computeSeries(form))
     }
 
     card(

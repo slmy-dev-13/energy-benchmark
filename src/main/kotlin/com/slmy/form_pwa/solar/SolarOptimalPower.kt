@@ -5,14 +5,14 @@ import com.slmy.form_pwa.data.FranceDepartment
 import com.slmy.form_pwa.data.SolarOptimalPowerForm
 import com.slmy.form_pwa.ui.card
 import com.slmy.form_pwa.update
-import io.kvision.core.AlignItems
 import io.kvision.core.Container
-import io.kvision.core.JustifyContent
 import io.kvision.form.formPanel
 import io.kvision.form.select.simpleSelect
 import io.kvision.form.spinner.simpleSpinner
-import io.kvision.html.*
-import io.kvision.panel.hPanel
+import io.kvision.html.br
+import io.kvision.html.div
+import io.kvision.html.h3
+import io.kvision.html.span
 import io.kvision.state.ObservableValue
 import io.kvision.state.bind
 import io.kvision.state.sub
@@ -38,50 +38,35 @@ fun Container.solarOptimalPower(controller: SolarController) {
                     formObservable.value = getData()
                 }
 
-                div(className = "col-6 col-xs-12")
-
-                simpleSpinner(value = formObservable.value.currentConsumption, label = "Consommation actuelle en KWh") {
-                    addCssClass("col-6")
-                    addCssClass("col-xs-12")
-                    bind(SolarOptimalPowerForm::currentConsumption)
-                    subscribe(subscriber)
+                div(className = "col-5 col-xs-12") {
+                    simpleSpinner(value = formObservable.value.currentConsumption, label = "Consommation actuelle (KWh)") {
+                        bind(SolarOptimalPowerForm::currentConsumption)
+                        subscribe(subscriber)
+                    }
                 }
 
-                div(className = "col-12 divider")
+                div(className = "col-1")
 
-                hPanel(justify = JustifyContent.SPACEBETWEEN, alignItems = AlignItems.CENTER, spacing = 8, className = "col-12") {
-                    div {
-                        label(content = "Ensoleillement:")
-                        br()
-
-                        span(className = "text-large text-bold").bind(formObservable) {
-                            content = it.sunHours.toString()
-                        }
-                        span(content = "heures / an", className = "ml-2")
-                    }
-
+                div(className = "col-6 col-xs-12 column px-2") {
                     simpleSelect(
                         options = departmentOptions,
                         value = departmentOptions.first().first,
-                        label = "Département"
+                        label = "Ensoleillement par département",
+                        rich = true
                     ) {
-                        addCssClass("col-6")
-                        addCssClass("col-xs-12")
-
+                        addCssClass("col-12")
                         subscribe { departmentId ->
                             val department = departmentId?.let { FranceDepartment.valueById(it) }
-
-                            console.log(department)
 
                             if (department != null) {
                                 formObservable.update { it.copy(sunHours = department.sunHours) }
                             }
                         }
                     }
+                    div(className = "col-12 text-large text-bold text-right").bind(formObservable) {
+                        content = "${it.sunHours} heures / an"
+                    }
                 }
-
-
-
                 setData(formObservable.value)
             }
         },
