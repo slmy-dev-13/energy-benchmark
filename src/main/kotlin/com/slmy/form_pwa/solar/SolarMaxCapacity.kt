@@ -23,7 +23,7 @@ fun Container.solarMaxCapacity(controller: SolarController) {
     }
 
     card(
-        headerContent = { h3("Capacité maximum en panneau") },
+        headerContent = { h3("Capacité maximum pour le toit") },
         bodyContent = {
             span(content = "Dimensions du toit", className = "column col-12 text-bold text-left mt-2")
 
@@ -57,9 +57,9 @@ fun Container.solarMaxCapacity(controller: SolarController) {
         },
         extraContent = {
             div(className = "card-extra text-right mt-2").bind(controller.stateObservable) { state ->
-                span("Capacité maximum")
-                br()
                 span("${state.maxPanelCapacity} panneaux", className = "h1")
+                br()
+                span("${state.maxPossiblePower} KWc", className = "h1")
             }
         }
     )

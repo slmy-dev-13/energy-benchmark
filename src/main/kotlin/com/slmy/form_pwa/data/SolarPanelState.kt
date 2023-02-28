@@ -2,20 +2,24 @@ package com.slmy.form_pwa.data
 
 import kotlin.math.ceil
 import kotlin.math.floor
+import kotlin.math.min
 
-private const val solarPanelPower = 0.375
-private const val solarPanelSurface = 1.16 * 1.69
+private const val solarPanelKWc = 0.375 // KWc
+private const val solarPanelSurface = 1.16 * 1.69 // m2
 
 data class SolarPanelState(
-    val energyCost: EnergyCost = EnergyCost(),
+    val electricityCost: Double = 2500.0,
     val usageCost: UsageCost = UsageCost(),
     val surface: Double = 0.0,
     val orientation: Orientation = Orientation.S,
-    val sunHours: Int = 0,
-    val currentConsumption: Int = 0
+    val sunHours: Int = 1,
+    val currentConsumption: Int = 3700
 ) {
     val maxPanelCapacity: Int = floor(surface / solarPanelSurface).toInt()
-    val optimalRequiredPower: Int = ceil(currentConsumption / sunHours.toDouble()).toInt()
-    val maxPossiblePower: Int = ceil(maxPanelCapacity.toDouble() * solarPanelPower * sunHours.toDouble()).toInt()
+    val maxPossiblePower: Double = (maxPanelCapacity.toDouble() * solarPanelKWc)
+    val optimalRequiredPower: Double = (currentConsumption.toDouble() / sunHours.toDouble())
+    val optimalPanelCount: Int = ceil(optimalRequiredPower / solarPanelKWc).toInt()
 
+    val savingsFactor: Double = (min(maxPanelCapacity, optimalPanelCount).toDouble() * solarPanelKWc * sunHours.toDouble() * .7) / currentConsumption.toDouble()
+    val costSavings: Double = electricityCost * savingsFactor
 }

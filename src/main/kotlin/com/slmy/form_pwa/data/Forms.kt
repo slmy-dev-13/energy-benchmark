@@ -12,7 +12,7 @@ data class ConsumptionCostsForm(
 
 @Serializable
 data class SolarConsumptionCostsForm(
-    val electricityCost: Double = 1000.0,
+    val electricityCost: Double = 2500.0,
     val withPanels: Boolean = false,
     val withBalloonTD: Boolean = false,
 )
@@ -74,6 +74,6 @@ data class SolarMaxCapacityForm(
 data class SolarOptimalPowerForm(
     val orientation: Orientation = Orientation.S,
     val sunHours: Int = 6,
-    val currentConsumption: Int = 0
+    val currentConsumption: Int = 3700
 )
 

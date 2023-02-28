@@ -113,19 +113,17 @@ fun Container.solarCostsAndSavings(controller: SolarController) {
     }
 
     card(
-        headerContent = { h3("Coûts et économies réalisables") },
+        headerContent = { h3("Économies théoriques") },
         bodyContent = {
             div(className = "column") {
                 val state = controller.stateObservable.value
 
-                simpleSpinner(value = state.energyCost.electricity, label = "Conso annuelle d’ Electricité en €") {
+                simpleSpinner(value = state.electricityCost, label = "Consommation annuelle d’électricité en €") {
                     subscribe { electricityCost ->
                         formObservable.update { it.copy(electricityCost = electricityCost?.toDouble() ?: 0.0) }
                     }
                 }
-
-                div(className = "divider col-12")
-
+                br()
                 br()
             }
         },

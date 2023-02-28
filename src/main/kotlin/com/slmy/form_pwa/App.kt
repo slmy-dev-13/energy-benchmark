@@ -1,10 +1,7 @@
 package com.slmy.form_pwa
 
 import com.slmy.form_pwa.heat_pump.*
-import com.slmy.form_pwa.solar.solarCostsAndSavings
-import com.slmy.form_pwa.solar.solarMaxCapacity
-import com.slmy.form_pwa.solar.solarOptimalPower
-import com.slmy.form_pwa.solar.solarRatios
+import com.slmy.form_pwa.solar.*
 import com.slmy.form_pwa.ui.card
 import io.kvision.*
 import io.kvision.core.Container
@@ -70,6 +67,7 @@ class App : Application() {
                             solarCostsAndSavings(solarController)
                             solarMaxCapacity(solarController)
                             solarOptimalPower(solarController)
+                            solarOptimalSavings(solarController)
                         }
                     }
                 }

@@ -3,6 +3,7 @@ package com.slmy.form_pwa.solar
 import com.slmy.form_pwa.SolarController
 import com.slmy.form_pwa.data.FranceDepartment
 import com.slmy.form_pwa.data.SolarOptimalPowerForm
+import com.slmy.form_pwa.formatDecimal
 import com.slmy.form_pwa.ui.card
 import com.slmy.form_pwa.update
 import io.kvision.core.Container
@@ -31,17 +32,17 @@ fun Container.solarOptimalPower(controller: SolarController) {
     }
 
     card(
-        headerContent = { h3("Puissance optimale & réalisable") },
+        headerContent = { h3("Puissance optimale requise") },
         bodyContent = {
             formPanel(className = "columns column pb-2") {
-                val subscriber: (Number?) -> Unit = {
-                    formObservable.value = getData()
-                }
-
                 div(className = "col-5 col-xs-12") {
                     simpleSpinner(value = formObservable.value.currentConsumption, label = "Consommation actuelle (KWh)") {
                         bind(SolarOptimalPowerForm::currentConsumption)
-                        subscribe(subscriber)
+                        subscribe { newValue ->
+                            newValue?.let { consumption ->
+                                formObservable.update { it.copy(currentConsumption = consumption.toInt()) }
+                            }
+                        }
                     }
                 }
 
@@ -72,13 +73,9 @@ fun Container.solarOptimalPower(controller: SolarController) {
         },
         extraContent = {
             div(className = "card-extra text-right mt-2").bind(controller.stateObservable) { state ->
-                span("Puissance requise optimale")
+                span("${state.optimalPanelCount} panneaux", className = "h1")
                 br()
-                span("${state.optimalRequiredPower} KWh", className = "h1")
-                br()
-                span("Puissance réalisable")
-                br()
-                span("${state.maxPossiblePower} KWh", className = "h1")
+                span("${formatDecimal(state.optimalRequiredPower, 3)} KWc", className = "h1")
             }
         }
     )
